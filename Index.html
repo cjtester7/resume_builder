@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Resume Optimizer</title>
+  <style>
+    body {
+      font-family: Arial;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #status {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    #output {
+      white-space: pre-wrap;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      padding: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>AI Resume Optimizer</h2>
+
+<label>Base Resume</label>
+<textarea id="resume"></textarea>
+
+<label>Job Description</label>
+<textarea id="jobDesc"></textarea>
+
+<button onclick="optimizeResume()">Optimize Resume</button>
+
+<div id="status"></div>
+<div id="output"></div>
+
+<script>
+async function optimizeResume() {
+  const resume = document.getElementById("resume").value;
+  const jobDesc = document.getElementById("jobDesc").value;
+  const status = document.getElementById("status");
+  const output = document.getElementById("output");
+
+  status.innerText = "⏳ Optimizing...";
+  output.innerText = "";
+
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxCJ2WiPQuQooLavVnL7HIBLAN8Mz1HM83JsxJc40uhsO2JOub3t32l0C8b24klRm7Q4A/exec", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        resume: resume,
+        jobDescription: jobDesc
+      })
+    });
+
+    const data = await response.json();
+
+    output.innerText = data.result;
+    status.innerText = "✅ Done!";
+  } catch (err) {
+    status.innerText = "❌ Error occurred";
+  }
+}
+</script>
+
+</body>
+</html>
