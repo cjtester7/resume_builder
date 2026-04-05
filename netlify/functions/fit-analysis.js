@@ -22,30 +22,7 @@ exports.handler = async function (event) {
         messages: [
           {
             role: "user",
-            content: `You are a candid career coach doing a fit analysis. Analyze the resume against the job description${payTarget ? " and pay target" : ""} and return ONLY a JSON object — no markdown, no preamble, no backticks.
-
-The JSON must follow this exact structure:
-{
-  "headline": "one short honest sentence summarizing overall fit (e.g. 'Partial fit with notable gaps')",
-  "verdict": "strong" | "partial" | "weak",
-  "alignment": [
-    { "title": "short label", "detail": "one to two sentence explanation" }
-  ],
-  "gaps": [
-    { "title": "short label", "detail": "one to two sentence explanation" }
-  ],
-  "compensation": "one sentence about how their pay target compares to the role's range, or null if no pay target provided and no salary info in job description",
-  "summary": "2-3 sentence honest overall assessment",
-  "directions": "2-3 sentence suggestion of better-fit role types or next steps"
-}
-
-Keep alignment to 2-4 items. Keep gaps to 2-5 items. Be direct and specific — reference actual details from the resume and job description.
-
----RESUME---
-${resume}
-
----JOB DESCRIPTION---
-${jobDescription}${payTarget ? `\n\n---PAY TARGET---\n${payTarget}` : ""}`,
+            content: `You are a candid career coach doing a fit analysis. Analyze the resume against the job description${payTarget ? " and pay target" : ""} and return ONLY a JSON object — no markdown, no preamble, no backticks.\n\nThe JSON must follow this exact structure:\n{\n  "headline": "one short honest sentence summarizing overall fit",\n  "verdict": "strong" | "partial" | "weak",\n  "score": <integer 0-100 representing overall match percentage>,\n  "alignment": [\n    { "title": "short label", "detail": "one to two sentence explanation" }\n  ],\n  "gaps": [\n    { "title": "short label", "detail": "one to two sentence explanation" }\n  ],\n  "compensation": "one sentence about pay comparison, or null if unavailable",\n  "summary": "2-3 sentence honest overall assessment",\n  "directions": "2-3 sentence suggestion of better-fit roles or next steps"\n}\n\nScoring: 80-100 strong fit, 50-79 partial fit, 0-49 weak fit. Keep alignment to 2-4 items, gaps to 2-5 items. Be direct and specific.\n\n---RESUME---\n${resume}\n\n---JOB DESCRIPTION---\n${jobDescription}${payTarget ? "\n\n---PAY TARGET---\n" + payTarget : ""}`,
           },
         ],
       }),
