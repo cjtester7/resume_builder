@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Builder — ResumeAI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f5f3ee;
+      --surface: #ffffff;
+      --border: #ddd9d0;
+      --text: #1a1a18;
+      --muted: #7a7870;
+      --accent: #2e5c3e;
+      --accent-light: #eaf2ec;
+      --accent-border: #c2dbc8;
+      --amber: #8a5c00;
+      --amber-light: #fdf6e3;
+      --amber-border: #f0dfa0;
+      --danger: #c0392b;
+      --danger-light: #fdf0ee;
+      --radius: 10px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 60px;
+    }
+
+    /* Nav */
+    nav {
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      margin-bottom: 40px;
+    }
+
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: var(--accent); font-style: italic; }
+
+    .nav-back {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+    }
+
+    .nav-back:hover { color: var(--accent); }
+
+    .container { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+
+    /* Mode selector */
+    #modeScreen { display: block; }
+    #builderScreen { display: none; }
+    #resultScreen { display: none; }
+
+    .screen-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .screen-subtitle {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* Profile selector */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 500px) { .profile-grid { grid-template-columns: 1fr; } }
+
+    .profile-btn {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .profile-btn:hover { border-color: var(--accent-border); background: var(--accent-light); }
+
+    .profile-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .profile-btn-icon { font-size: 20px; margin-bottom: 6px; }
+    .profile-btn-label { font-size: 13px; font-weight: 500; color: var(--text); display: block; }
+    .profile-btn-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Mode cards */
+    .mode-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 520px) { .mode-grid { grid-template-columns: 1fr; } }
+
+    .mode-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, transform 0.1s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .mode-card:hover { border-color: var(--accent-border); transform: translateY(-1px); }
+    .mode-card.selected { border-color: var(--accent); background: var(--accent-light); }
+
+    .mode-icon { font-size: 26px; margin-bottom: 10px; }
+    .mode-label { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .mode-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+    /* Buttons */
+    .btn-primary {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      padding: 12px 28px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:active { transform: scale(0.98); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-secondary {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--accent-border);
+      border-radius: 6px;
+      padding: 11px 24px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover { background: var(--accent-light); }
+
+    .btn-ghost {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px 0;
+      transition: color 0.15s;
+    }
+
+    .btn-ghost:hover { color: var(--text); }
+
+    /* ── ONE QUESTION AT A TIME ────────────────────────────────── */
+    #oqMode { display: none; }
+
+    .oq-progress {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .oq-bar-wrap {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .oq-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+
+    .oq-step-label {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .oq-question-wrap {
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .oq-section-tag {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .oq-question {
+      font-family: 'DM Serif Display', serif;
+      font-size: 26px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 8px;
+    }
+
+    .oq-hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      line-height: 1.55;
+    }
+
+    .oq-input {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+    }
+
+    .oq-input:focus { border-color: var(--accent); }
+
+    .oq-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* ── GUIDED FORM ──────────────────────────────────────────── */
+    #formMode { display: none; }
+
+    .form-section {
+      margin-bottom: 32px;
+    }
+
+    .form-section-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+    .form-field { margin-bottom: 14px; }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-textarea {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+
+    .form-textarea { height: 90px; resize: vertical; }
+
+    /* Job repeat block */
+    .job-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .job-block-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .btn-remove {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      font-size: 11px;
+      color: var(--danger);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .btn-add-job {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--accent);
+      background: var(--accent-light);
+      border: 1px dashed var(--accent-border);
+      border-radius: 6px;
+      padding: 10px 16px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+      margin-bottom: 14px;
+      transition: background 0.15s;
+    }
+
+    .btn-add-job:hover { background: #d6ebda; }
+
+    /* ── CHATBOT MODE ─────────────────────────────────────────── */
+    #chatMode { display: none; }
+
+    .chat-window {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      height: 420px;
+      overflow-y: auto;
+      padding: 20px;
+      margin-bottom: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    .chat-bubble {
+      max-width: 82%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .chat-bubble.ai {
+      background: var(--accent-light);
+      color: var(--text);
+      border-bottom-left-radius: 3px;
+      align-self: flex-start;
+    }
+
+    .chat-bubble.user {
+      background: var(--accent);
+      color: #fff;
+      border-bottom-right-radius: 3px;
+      align-self: flex-end;
+    }
+
+    .chat-bubble.typing {
+      background: var(--accent-light);
+      align-self: flex-start;
+      padding: 14px 18px;
+    }
+
+    .typing-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-right: 3px;
+      animation: dot-bounce 1.2s infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color 0.15s;
+      resize: none;
+      min-height: 46px;
+      max-height: 120px;
+    }
+
+    .chat-input:focus { border-color: var(--accent); }
+
+    .chat-send {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .chat-send:hover { opacity: 0.85; }
+    .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── RESULT ───────────────────────────────────────────────── */
+    .result-output {
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      min-height: 300px;
+      margin-bottom: 20px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .btn-optimizer {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      padding: 12px 22px;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-optimizer:hover { opacity: 0.88; }
+
+    .result-hint {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+      background: var(--amber-light);
+      border: 1px solid var(--amber-border);
+      border-radius: 6px;
+      padding: 12px 16px;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid #c2dbc8;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-text { font-size: 13px; color: var(--muted); margin-top: 10px; }
+    .status-text.error { color: var(--danger); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">Resume<span>AI</span></a>
+  <a class="nav-back" href="/">&larr; Back to home</a>
+</nav>
+
+<div class="container">
+
+  <!-- ── SCREEN 1: Profile + Mode selection ───────────────────── -->
+  <div id="modeScreen">
+    <h1 class="screen-title">Let's build your resume</h1>
+    <p class="screen-subtitle">First, tell us a little about yourself so we can ask the right questions.</p>
+
+    <p style="font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">I am a...</p>
+    <div class="profile-grid">
+      <button class="profile-btn" data-profile="highschool" onclick="selectProfile(this)">
+        <div class="profile-btn-icon">&#127979;</div>
+        <span class="profile-btn-label">High School Student</span>
+        <span class="profile-btn-desc">Part-time jobs, clubs, sports</span>
+      </button>
+      <button class="profile-btn" data-profile="college" onclick="selectProfile(this)">
+        <div class="profile-btn-icon">&#127979;</div>
+        <span class="profile-btn-label">College Student</span>
+        <span class="profile-btn-desc">Internships, projects, campus jobs</span>
+      </button>
+      <button class="profile-btn" data-profile="trades" onclick="selectProfile(this)">
+        <div class="profile-btn-icon">&#127859;</div>
+        <span class="profile-btn-label">Service / Trades Worker</span>
+        <span class="profile-btn-desc">Restaurant, retail, construction</span>
+      </button>
+      <button class="profile-btn" data-profile="office" onclick="selectProfile(this)">
+        <div class="profile-btn-icon">&#128188;</div>
+        <span class="profile-btn-label">Office Professional</span>
+        <span class="profile-btn-desc">Corporate, admin, tech roles</span>
+      </button>
+      <button class="profile-btn" data-profile="esl" onclick="selectProfile(this)">
+        <div class="profile-btn-icon">&#127760;</div>
+        <span class="profile-btn-label">Foreign-Born / ESL</span>
+        <span class="profile-btn-desc">English is my second language</span>
+      </button>
+      <button class="profile-btn" data-profile="career" onclick="selectProfile(this)">
+        <div class="profile-btn-icon">&#128260;</div>
+        <span class="profile-btn-label">Career Changer</span>
+        <span class="profile-btn-desc">Switching to a new field</span>
+      </button>
+    </div>
+
+    <p style="font-size:12px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;">How do you want to build it?</p>
+    <div class="mode-grid">
+      <div class="mode-card" data-mode="oq" onclick="selectMode(this)">
+        <div class="mode-icon">&#9654;</div>
+        <div class="mode-label">One Question at a Time</div>
+        <div class="mode-desc">Like TurboTax — simple, focused, step by step</div>
+      </div>
+      <div class="mode-card" data-mode="form" onclick="selectMode(this)">
+        <div class="mode-icon">&#128203;</div>
+        <div class="mode-label">Full Form</div>
+        <div class="mode-desc">See all fields at once and fill them in your own order</div>
+      </div>
+      <div class="mode-card" data-mode="chat" onclick="selectMode(this)">
+        <div class="mode-icon">&#128172;</div>
+        <div class="mode-label">Chat with AI</div>
+        <div class="mode-desc">Have a conversation — the AI asks follow-up questions</div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="startBtn" onclick="startBuilder()" disabled>Continue &rarr;</button>
+  </div>
+
+  <!-- ── SCREEN 2: Builder ─────────────────────────────────────── -->
+  <div id="builderScreen">
+
+    <!-- One question at a time -->
+    <div id="oqMode">
+      <div class="oq-progress">
+        <div class="oq-bar-wrap"><div class="oq-bar-fill" id="oqBar" style="width:0%"></div></div>
+        <span class="oq-step-label" id="oqStepLabel">1 of 12</span>
+      </div>
+      <div class="oq-question-wrap">
+        <div class="oq-section-tag" id="oqSection"></div>
+        <div class="oq-question" id="oqQuestion"></div>
+        <div class="oq-hint" id="oqHint"></div>
+        <textarea class="oq-input" id="oqInput" rows="3" placeholder="Type your answer here..." onkeydown="oqKeydown(event)"></textarea>
+        <div class="oq-actions">
+          <button class="btn-primary" onclick="oqNext()">Next &rarr;</button>
+          <button class="btn-ghost" id="oqSkipBtn" onclick="oqSkip()">Skip this question</button>
+          <button class="btn-ghost" onclick="oqBack()">&#8592; Back</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Guided form -->
+    <div id="formMode">
+      <h2 class="screen-title" style="margin-bottom:6px;">Fill in your details</h2>
+      <p class="screen-subtitle">Complete as many sections as you can. You can always edit the resume after it's generated.</p>
+
+      <div class="form-section">
+        <div class="form-section-title">Contact Information</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Full Name</label>
+            <input class="form-input" id="f_name" type="text" placeholder="Jane Smith" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="f_email" type="email" placeholder="jane@email.com" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Phone</label>
+            <input class="form-input" id="f_phone" type="tel" placeholder="(555) 555-5555" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">City, State</label>
+            <input class="form-input" id="f_location" type="text" placeholder="Baltimore, MD" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Job Target</div>
+        <div class="form-field">
+          <label class="form-label">What kind of job are you looking for?</label>
+          <input class="form-input" id="f_jobtarget" type="text" placeholder="e.g. Server, Customer Service Rep, Office Assistant" />
+        </div>
+        <div class="form-field">
+          <label class="form-label">Brief summary about yourself (optional)</label>
+          <textarea class="form-textarea" id="f_summary" placeholder="e.g. Hardworking and reliable team player with 2 years of restaurant experience..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Work Experience</div>
+        <div id="jobBlocks">
+          <div class="job-block" id="job_0">
+            <div class="job-block-title">Job 1</div>
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Employer / Company</label>
+                <input class="form-input" type="text" placeholder="McDonald's" data-job="0" data-field="employer" />
+              </div>
+              <div class="form-field">
+                <label class="form-label">Your Title</label>
+                <input class="form-input" type="text" placeholder="Crew Member" data-job="0" data-field="title" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-field">
+                <label class="form-label">Start Date</label>
+                <input class="form-input" type="text" placeholder="June 2022" data-job="0" data-field="start" />
+              </div>
+              <div class="form-field">
+                <label class="form-label">End Date</label>
+                <input class="form-input" type="text" placeholder="Present" data-job="0" data-field="end" />
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">What did you do there? (describe your daily tasks)</label>
+              <textarea class="form-textarea" style="height:100px;" placeholder="e.g. Took customer orders, prepared food, cleaned work area, trained new employees, handled cash register..." data-job="0" data-field="tasks"></textarea>
+            </div>
+          </div>
+        </div>
+        <button class="btn-add-job" onclick="addJob()">+ Add another job</button>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Education</div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">School Name</label>
+            <input class="form-input" id="f_school" type="text" placeholder="Baltimore City College" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Degree / Level</label>
+            <input class="form-input" id="f_degree" type="text" placeholder="High School Diploma / Associate's / Bachelor's" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label class="form-label">Graduation Year</label>
+            <input class="form-input" id="f_gradyear" type="text" placeholder="2024" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">GPA (optional)</label>
+            <input class="form-input" id="f_gpa" type="text" placeholder="3.5" />
+          </div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">Relevant courses, clubs, or activities (optional)</label>
+          <input class="form-input" id="f_activities" type="text" placeholder="e.g. Business Club, Honor Roll, AP Computer Science" />
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">Skills</div>
+        <div class="form-field">
+          <label class="form-label">List your skills (tools, software, languages, equipment)</label>
+          <textarea class="form-textarea" id="f_skills" placeholder="e.g. Microsoft Office, customer service, cash handling, Spanish, forklift certified..."></textarea>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">One Thing You're Proud Of (optional)</div>
+        <div class="form-field">
+          <label class="form-label">Did you get promoted, win an award, train others, or handle something important?</label>
+          <textarea class="form-textarea" id="f_achievement" placeholder="e.g. Was promoted to shift leader after 6 months, trained 5 new employees..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="submitForm()" id="formSubmitBtn">Build My Resume &rarr;</button>
+      <div class="status-text" id="formStatus"></div>
+    </div>
+
+    <!-- Chat mode -->
+    <div id="chatMode">
+      <h2 class="screen-title" style="margin-bottom:6px;">Chat with your AI resume coach</h2>
+      <p class="screen-subtitle">Just answer the questions naturally — I'll handle the formatting.</p>
+      <div class="chat-window" id="chatWindow"></div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chatInput" placeholder="Type your answer..." rows="1" onkeydown="chatKeydown(event)"></textarea>
+        <button class="chat-send" id="chatSendBtn" onclick="chatSend()">Send</button>
+      </div>
+      <div class="status-text" id="chatStatus"></div>
+    </div>
+
+  </div>
+
+  <!-- ── SCREEN 3: Result ──────────────────────────────────────── -->
+  <div id="resultScreen">
+    <h2 class="screen-title" style="margin-bottom:6px;">Your resume is ready</h2>
+    <p class="screen-subtitle">Review it below. You can copy it, download it, or send it straight to the optimizer to tailor it for a specific job.</p>
+
+    <div class="result-actions">
+      <button class="btn-optimizer" onclick="sendToOptimizer()">&#9889; Optimize for a Job &rarr;</button>
+      <button class="btn-secondary" onclick="downloadResumeAsText()">&#8595; Download TXT</button>
+      <button class="btn-ghost" onclick="startOver()">Start over</button>
+    </div>
+
+    <div class="result-output" id="resultOutput"></div>
+
+    <div class="result-hint">
+      <strong>Tip:</strong> Click <strong>Optimize for a Job</strong> to paste this resume into the optimizer along with a job description — the AI will tailor the keywords, tone, and format specifically for that role.
+    </div>
+  </div>
+
+</div>
+
+<script>
+var selectedProfile = null;
+var selectedMode    = null;
+var generatedResume = "";
+
+// ── Profile + Mode selection ──────────────────────────────────────────────────
+function selectProfile(btn) {
+  document.querySelectorAll(".profile-btn").forEach(function(b) { b.classList.remove("selected"); });
+  btn.classList.add("selected");
+  selectedProfile = btn.getAttribute("data-profile");
+  checkStartReady();
+}
+
+function selectMode(card) {
+  document.querySelectorAll(".mode-card").forEach(function(c) { c.classList.remove("selected"); });
+  card.classList.add("selected");
+  selectedMode = card.getAttribute("data-mode");
+  checkStartReady();
+}
+
+function checkStartReady() {
+  document.getElementById("startBtn").disabled = !(selectedProfile && selectedMode);
+}
+
+function startBuilder() {
+  document.getElementById("modeScreen").style.display = "none";
+  document.getElementById("builderScreen").style.display = "block";
+
+  if (selectedMode === "oq") {
+    document.getElementById("oqMode").style.display = "block";
+    initOQ();
+  } else if (selectedMode === "form") {
+    document.getElementById("formMode").style.display = "block";
+  } else if (selectedMode === "chat") {
+    document.getElementById("chatMode").style.display = "block";
+    initChat();
+  }
+}
+
+// ── ONE QUESTION AT A TIME ─────────────────────────────────────────────────────
+var oqAnswers  = {};
+var oqIndex    = 0;
+var oqJobCount = 1;
+var oqCurrentJobIndex = 0;
+
+function getOQSteps() {
+  var base = [
+    { section: "About You", key: "name",      question: "What is your full name?",                hint: "",                                                               type: "input",    required: true  },
+    { section: "About You", key: "email",     question: "What is your email address?",             hint: "This will appear at the top of your resume.",                    type: "input",    required: false },
+    { section: "About You", key: "phone",     question: "What is your phone number?",              hint: "",                                                               type: "input",    required: false },
+    { section: "About You", key: "location",  question: "What city and state do you live in?",     hint: "e.g. Baltimore, MD",                                             type: "input",    required: false },
+    { section: "Your Goal", key: "jobtarget", question: "What kind of job are you looking for?",   hint: "e.g. Server, Customer Service Rep, IT Support Technician",       type: "input",    required: true  },
+    { section: "Work",      key: "job1_employer", question: "Where did you work most recently?",   hint: "If you have never worked before, just type 'No work experience'", type: "input",    required: true  },
+    { section: "Work",      key: "job1_title",    question: "What was your job title there?",      hint: "e.g. Crew Member, Sales Associate, Intern",                      type: "input",    required: false },
+    { section: "Work",      key: "job1_dates",    question: "When did you work there?",            hint: "e.g. June 2022 to Present, or Summer 2023",                      type: "input",    required: false },
+    { section: "Work",      key: "job1_tasks",    question: "What did you do at that job every day?", hint: "Don't worry about wording — just describe your tasks in plain language. The more detail the better.", type: "textarea", required: false },
+    { section: "Education", key: "school",    question: "What school did you attend or are currently attending?", hint: "Name of high school, college, or trade school",  type: "input",    required: false },
+    { section: "Education", key: "degree",    question: "What degree or diploma did you earn, or are working toward?", hint: "e.g. High School Diploma, Associate's Degree, Bachelor's in Business", type: "input", required: false },
+    { section: "Skills",    key: "skills",    question: "What are your top skills?",               hint: "List anything you are good at — tools, software, languages, equipment, customer service, etc.", type: "textarea", required: false },
+    { section: "Achievement", key: "achievement", question: "Tell me one thing you are proud of from work or school.", hint: "e.g. Promoted to shift leader, trained new employees, honor roll, won an award — anything counts.", type: "textarea", required: false }
+  ];
+  return base;
+}
+
+var oqSteps = [];
+
+function initOQ() {
+  oqSteps  = getOQSteps();
+  oqIndex  = 0;
+  oqAnswers = {};
+  renderOQStep();
+}
+
+function renderOQStep() {
+  var step  = oqSteps[oqIndex];
+  var total = oqSteps.length;
+  var pct   = Math.round((oqIndex / total) * 100);
+
+  document.getElementById("oqBar").style.width = pct + "%";
+  document.getElementById("oqStepLabel").innerText = (oqIndex + 1) + " of " + total;
+  document.getElementById("oqSection").innerText   = step.section;
+  document.getElementById("oqQuestion").innerText  = step.question;
+  document.getElementById("oqHint").innerText      = step.hint;
+  document.getElementById("oqSkipBtn").style.display = step.required ? "none" : "inline";
+
+  var input = document.getElementById("oqInput");
+  input.tagName !== "TEXTAREA"
+    ? input.setAttribute("rows", step.type === "textarea" ? "4" : "2")
+    : null;
+  input.rows      = step.type === "textarea" ? 4 : 2;
+  input.value     = oqAnswers[step.key] || "";
+  input.placeholder = step.hint || "Type your answer here...";
+  input.focus();
+}
+
+function oqNext() {
+  var step  = oqSteps[oqIndex];
+  var val   = document.getElementById("oqInput").value.trim();
+
+  if (step.required && !val) {
+    document.getElementById("oqInput").style.borderColor = "var(--danger)";
+    setTimeout(function() { document.getElementById("oqInput").style.borderColor = ""; }, 1200);
+    return;
+  }
+
+  if (val) { oqAnswers[step.key] = val; }
+
+  if (oqIndex < oqSteps.length - 1) {
+    oqIndex++;
+    renderOQStep();
+  } else {
+    buildResumeFromAnswers(oqAnswers);
+  }
+}
+
+function oqSkip() {
+  if (oqIndex < oqSteps.length - 1) {
+    oqIndex++;
+    renderOQStep();
+  } else {
+    buildResumeFromAnswers(oqAnswers);
+  }
+}
+
+function oqBack() {
+  if (oqIndex > 0) { oqIndex--; renderOQStep(); }
+}
+
+function oqKeydown(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); oqNext(); }
+}
+
+// ── GUIDED FORM ───────────────────────────────────────────────────────────────
+var jobCount = 1;
+
+function addJob() {
+  var idx  = jobCount;
+  var wrap = document.getElementById("jobBlocks");
+  var div  = document.createElement("div");
+  div.className = "job-block";
+  div.id = "job_" + idx;
+  div.innerHTML =
+    '<button class="btn-remove" onclick="removeJob(' + idx + ')">Remove</button>' +
+    '<div class="job-block-title">Job ' + (idx + 1) + '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-field"><label class="form-label">Employer / Company</label><input class="form-input" type="text" placeholder="Company name" data-job="' + idx + '" data-field="employer" /></div>' +
+      '<div class="form-field"><label class="form-label">Your Title</label><input class="form-input" type="text" placeholder="Job title" data-job="' + idx + '" data-field="title" /></div>' +
+    '</div>' +
+    '<div class="form-row">' +
+      '<div class="form-field"><label class="form-label">Start Date</label><input class="form-input" type="text" placeholder="June 2022" data-job="' + idx + '" data-field="start" /></div>' +
+      '<div class="form-field"><label class="form-label">End Date</label><input class="form-input" type="text" placeholder="Present" data-job="' + idx + '" data-field="end" /></div>' +
+    '</div>' +
+    '<div class="form-field"><label class="form-label">Daily tasks and responsibilities</label><textarea class="form-textarea" style="height:100px;" placeholder="Describe what you did..." data-job="' + idx + '" data-field="tasks"></textarea></div>';
+  wrap.appendChild(div);
+  jobCount++;
+}
+
+function removeJob(idx) {
+  var el = document.getElementById("job_" + idx);
+  if (el) el.remove();
+}
+
+function submitForm() {
+  var answers = {
+    name:       document.getElementById("f_name").value,
+    email:      document.getElementById("f_email").value,
+    phone:      document.getElementById("f_phone").value,
+    location:   document.getElementById("f_location").value,
+    jobtarget:  document.getElementById("f_jobtarget").value,
+    summary:    document.getElementById("f_summary").value,
+    school:     document.getElementById("f_school").value,
+    degree:     document.getElementById("f_degree").value,
+    gradyear:   document.getElementById("f_gradyear").value,
+    gpa:        document.getElementById("f_gpa").value,
+    activities: document.getElementById("f_activities").value,
+    skills:     document.getElementById("f_skills").value,
+    achievement: document.getElementById("f_achievement").value
+  };
+
+  // Collect all job blocks
+  var jobInputs = document.querySelectorAll("[data-job]");
+  var jobs = {};
+  jobInputs.forEach(function(inp) {
+    var job   = inp.getAttribute("data-job");
+    var field = inp.getAttribute("data-field");
+    if (!jobs[job]) { jobs[job] = {}; }
+    jobs[job][field] = inp.value;
+  });
+
+  Object.entries(jobs).forEach(function(entry, i) {
+    var j = entry[1];
+    if (j.employer) {
+      answers["job" + (i+1) + "_employer"] = j.employer;
+      answers["job" + (i+1) + "_title"]    = j.title || "";
+      answers["job" + (i+1) + "_dates"]    = (j.start || "") + (j.end ? " to " + j.end : "");
+      answers["job" + (i+1) + "_tasks"]    = j.tasks || "";
+    }
+  });
+
+  if (!answers.name || !answers.jobtarget) {
+    document.getElementById("formStatus").className = "status-text error";
+    document.getElementById("formStatus").innerText = "Please fill in your name and job target at minimum.";
+    return;
+  }
+
+  document.getElementById("formSubmitBtn").disabled = true;
+  document.getElementById("formStatus").className = "status-text";
+  document.getElementById("formStatus").innerHTML = '<span class="spinner"></span>Building your resume...';
+  buildResumeFromAnswers(answers);
+}
+
+// ── CHAT MODE ─────────────────────────────────────────────────────────────────
+var chatHistory = [];
+var chatDone    = false;
+var chatAnswers = {};
+
+var chatSystemPrompt = "";
+
+function initChat() {
+  chatHistory = [];
+  chatDone    = false;
+  chatAnswers = {};
+
+  var profileLabels = {
+    highschool: "high school student",
+    college:    "college student",
+    trades:     "service or trades worker",
+    office:     "office professional",
+    esl:        "foreign-born or ESL candidate",
+    career:     "career changer"
+  };
+
+  chatSystemPrompt = `You are a friendly, encouraging AI resume coach interviewing a ${profileLabels[selectedProfile] || "job seeker"} to build their first resume.
+
+Your job is to gather the following information through natural conversation:
+1. Full name, email, phone, city/state
+2. What kind of job they are looking for
+3. Work history (employer, title, dates, daily tasks) — ask about up to 2 jobs
+4. Education (school, degree, graduation year)
+5. Skills
+6. One achievement they are proud of
+
+Rules:
+- Ask ONE question at a time — never multiple questions in one message
+- Use simple, friendly, encouraging language — no jargon
+- If the person gives a short or vague answer, ask one gentle follow-up to get more detail
+- If they say they have no work experience, move on gracefully and focus on school and skills
+- For ESL users, keep sentences short and avoid idioms
+- When you have gathered enough information (all key sections covered), end the conversation by saying exactly: "RESUME_READY" followed by a JSON object on the next line containing all the collected information with these keys: name, email, phone, location, jobtarget, job1_employer, job1_title, job1_dates, job1_tasks, job2_employer, job2_title, job2_dates, job2_tasks, school, degree, gradyear, skills, achievement. Use empty string for any missing fields.
+
+Start by warmly greeting the user and asking for their name.`;
+
+  addChatBubble("ai", "Hi there! I'm your AI resume coach. I'll ask you a few simple questions and build a professional resume for you. Let's start — what's your name?");
+}
+
+function addChatBubble(role, text) {
+  var win  = document.getElementById("chatWindow");
+  var div  = document.createElement("div");
+  div.className = "chat-bubble " + role;
+  div.innerText = text;
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
+function showTyping() {
+  var win = document.getElementById("chatWindow");
+  var div = document.createElement("div");
+  div.className = "chat-bubble typing";
+  div.id = "typingIndicator";
+  div.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
+  win.appendChild(div);
+  win.scrollTop = win.scrollHeight;
+}
+
+function removeTyping() {
+  var el = document.getElementById("typingIndicator");
+  if (el) el.remove();
+}
+
+async function chatSend() {
+  if (chatDone) return;
+  var input = document.getElementById("chatInput");
+  var msg   = input.value.trim();
+  if (!msg) return;
+
+  input.value = "";
+  input.style.height = "46px";
+  addChatBubble("user", msg);
+  chatHistory.push({ role: "user", content: msg });
+
+  document.getElementById("chatSendBtn").disabled = true;
+  showTyping();
+
+  try {
+    var response = await fetch("/.netlify/functions/chat-interview", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        history: chatHistory,
+        systemPrompt: chatSystemPrompt
+      })
+    });
+
+    var data = await response.json();
+    removeTyping();
+
+    if (data.error) throw new Error(data.error);
+
+    var aiMsg = data.reply;
+    chatHistory.push({ role: "assistant", content: aiMsg });
+
+    if (aiMsg.includes("RESUME_READY")) {
+      var jsonStart = aiMsg.indexOf("{");
+      var jsonEnd   = aiMsg.lastIndexOf("}");
+      if (jsonStart !== -1 && jsonEnd !== -1) {
+        try {
+          chatAnswers = JSON.parse(aiMsg.substring(jsonStart, jsonEnd + 1));
+          addChatBubble("ai", "I have everything I need. Building your resume now...");
+          chatDone = true;
+          setTimeout(function() { buildResumeFromAnswers(chatAnswers); }, 800);
+        } catch(e) {
+          addChatBubble("ai", "I have all your information. Building your resume now...");
+          chatDone = true;
+          setTimeout(function() { buildResumeFromAnswers(chatAnswers); }, 800);
+        }
+      }
+    } else {
+      addChatBubble("ai", aiMsg);
+    }
+  } catch(err) {
+    removeTyping();
+    addChatBubble("ai", "Something went wrong. Please try again.");
+  } finally {
+    document.getElementById("chatSendBtn").disabled = false;
+    document.getElementById("chatInput").focus();
+  }
+}
+
+function chatKeydown(e) {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); chatSend(); }
+}
+
+// ── Build resume from answers ─────────────────────────────────────────────────
+async function buildResumeFromAnswers(answers) {
+  try {
+    var response = await fetch("/.netlify/functions/build-resume", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile: selectedProfile, answers: answers })
+    });
+
+    var data = await response.json();
+
+    if (data.result) {
+      generatedResume = data.result;
+      showResult(generatedResume);
+    } else {
+      throw new Error(data.error || "No resume returned");
+    }
+  } catch(err) {
+    alert("Error building resume: " + err.message);
+    document.getElementById("formSubmitBtn").disabled = false;
+    document.getElementById("formStatus").innerText = "";
+  }
+}
+
+function showResult(text) {
+  document.getElementById("builderScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display  = "block";
+  document.getElementById("resultOutput").innerText = text;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ── Result actions ────────────────────────────────────────────────────────────
+function sendToOptimizer() {
+  sessionStorage.setItem("builtResume", generatedResume);
+  window.location.href = "/optimizer?from=builder";
+}
+
+function downloadResumeAsText() {
+  if (!generatedResume) return;
+  var blob = new Blob([generatedResume], { type: "text/plain" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href = url; a.download = "my-resume.txt";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function startOver() {
+  window.location.reload();
+}
+</script>
+
+</body>
+</html>

@@ -2,10 +2,16 @@
   publish = "."
   functions = "netlify/functions"
 
-# Optimizer
+# Landing page
+[[redirects]]
+  from = "/"
+  to = "/index.html"
+  status = 200
+
+# Optimizer (previously the root)
 [[redirects]]
   from = "/optimizer"
-  to = "/index-v10.html"
+  to = "/index-v9.html"
   status = 200
 
 # Builder
