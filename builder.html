@@ -71,6 +71,7 @@
     /* Mode selector */
     #modeScreen { display: block; }
     #builderScreen { display: none; }
+    #reviewScreen { display: none; }
     #resultScreen { display: none; }
 
     .screen-title {
@@ -486,6 +487,166 @@
     .chat-send:hover { opacity: 0.85; }
     .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
+
+    /* ── Review Screen ──────────────────────────────────────────── */
+    .review-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 24px;
+      align-items: start;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    @media (max-width: 640px) {
+      .review-layout { grid-template-columns: 1fr; }
+      .review-sidebar { position: static !important; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+      .review-nav-item { border-left: none !important; border-bottom: 2px solid transparent; padding: 6px 12px !important; border-radius: 4px; }
+      .review-nav-item.active { border-bottom-color: var(--accent) !important; border-left: none !important; }
+    }
+
+    .review-sidebar {
+      position: sticky;
+      top: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 0;
+      overflow: hidden;
+    }
+
+    .review-sidebar-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 10px 16px 6px;
+    }
+
+    .review-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: color 0.12s, background 0.12s, border-color 0.12s;
+      text-decoration: none;
+      background: none;
+      border-top: none;
+      border-right: none;
+      border-bottom: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .review-nav-item:hover { color: var(--text); background: var(--bg); }
+
+    .review-nav-item.active {
+      color: var(--accent);
+      font-weight: 500;
+      border-left-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .review-nav-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.12s;
+    }
+
+    .review-nav-item.active .review-nav-dot { background: var(--accent); }
+    .review-nav-item.has-data .review-nav-dot { background: var(--accent-border); }
+
+    .review-main { min-width: 0; }
+
+    .review-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+      scroll-margin-top: 24px;
+    }
+
+    .review-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .review-section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    .review-field { margin-bottom: 14px; }
+    .review-field:last-child { margin-bottom: 0; }
+
+    .review-field-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .review-input, .review-textarea {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .review-input:focus, .review-textarea:focus { border-color: var(--accent); }
+    .review-textarea { min-height: 90px; resize: vertical; }
+
+    .review-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 500px) { .review-row { grid-template-columns: 1fr; } }
+
+    .review-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .review-hint {
+      font-size: 12px;
+      color: var(--muted);
+      background: var(--amber-light);
+      border: 1px solid var(--amber-border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      line-height: 1.55;
+    }
+
     /* ── RESULT ───────────────────────────────────────────────── */
     .result-output {
       white-space: pre-wrap;
@@ -781,6 +942,191 @@
 
   </div>
 
+
+  <!-- ── SCREEN 2b: Review & Edit ─────────────────────────────── -->
+  <div id="reviewScreen">
+    <div class="review-layout">
+
+      <!-- Sidebar nav -->
+      <div class="review-sidebar">
+        <div class="review-sidebar-title">Sections</div>
+        <button class="review-nav-item active" onclick="scrollToSection('rv-contact')" id="nav-contact">
+          <span class="review-nav-dot"></span> Contact
+        </button>
+        <button class="review-nav-item" onclick="scrollToSection('rv-goal')" id="nav-goal">
+          <span class="review-nav-dot"></span> Job Goal
+        </button>
+        <button class="review-nav-item" onclick="scrollToSection('rv-work')" id="nav-work">
+          <span class="review-nav-dot"></span> Work History
+        </button>
+        <button class="review-nav-item" onclick="scrollToSection('rv-education')" id="nav-education">
+          <span class="review-nav-dot"></span> Education
+        </button>
+        <button class="review-nav-item" onclick="scrollToSection('rv-skills')" id="nav-skills">
+          <span class="review-nav-dot"></span> Skills
+        </button>
+        <button class="review-nav-item" onclick="scrollToSection('rv-achievement')" id="nav-achievement">
+          <span class="review-nav-dot"></span> Achievement
+        </button>
+      </div>
+
+      <!-- Main edit area -->
+      <div class="review-main">
+
+        <h2 class="screen-title" style="margin-bottom:6px;">Review your information</h2>
+        <p class="screen-subtitle" style="margin-bottom:16px;">Check each section and make any changes before we build your resume.</p>
+
+        <div class="review-hint">
+          &#9998; Click any field to edit. Changes are saved automatically as you type.
+        </div>
+
+        <!-- Contact -->
+        <div class="review-section" id="rv-contact">
+          <div class="review-section-header">
+            <div class="review-section-title">Contact Information</div>
+          </div>
+          <div class="review-row">
+            <div class="review-field">
+              <div class="review-field-label">Full Name</div>
+              <input class="review-input" id="rv_name" type="text" placeholder="Your full name" oninput="markNavDot('contact')" />
+            </div>
+            <div class="review-field">
+              <div class="review-field-label">Email</div>
+              <input class="review-input" id="rv_email" type="email" placeholder="your@email.com" oninput="markNavDot('contact')" />
+            </div>
+          </div>
+          <div class="review-row">
+            <div class="review-field">
+              <div class="review-field-label">Phone</div>
+              <input class="review-input" id="rv_phone" type="tel" placeholder="(555) 555-5555" oninput="markNavDot('contact')" />
+            </div>
+            <div class="review-field">
+              <div class="review-field-label">City, State</div>
+              <input class="review-input" id="rv_location" type="text" placeholder="Baltimore, MD" oninput="markNavDot('contact')" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Goal -->
+        <div class="review-section" id="rv-goal">
+          <div class="review-section-header">
+            <div class="review-section-title">Job Goal</div>
+          </div>
+          <div class="review-field">
+            <div class="review-field-label">What kind of job are you looking for?</div>
+            <input class="review-input" id="rv_jobtarget" type="text" placeholder="e.g. Server, Customer Service Rep, IT Support" oninput="markNavDot('goal')" />
+          </div>
+        </div>
+
+        <!-- Work History -->
+        <div class="review-section" id="rv-work">
+          <div class="review-section-header">
+            <div class="review-section-title">Work History</div>
+          </div>
+          <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+            <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">Job 1</div>
+            <div class="review-row" style="margin-bottom:12px;">
+              <div class="review-field">
+                <div class="review-field-label">Employer</div>
+                <input class="review-input" id="rv_job1_employer" type="text" placeholder="Company name" oninput="markNavDot('work')" />
+              </div>
+              <div class="review-field">
+                <div class="review-field-label">Title</div>
+                <input class="review-input" id="rv_job1_title" type="text" placeholder="Job title" oninput="markNavDot('work')" />
+              </div>
+            </div>
+            <div class="review-field" style="margin-bottom:12px;">
+              <div class="review-field-label">Dates</div>
+              <input class="review-input" id="rv_job1_dates" type="text" placeholder="e.g. June 2022 to Present" oninput="markNavDot('work')" />
+            </div>
+            <div class="review-field">
+              <div class="review-field-label">Daily Tasks & Responsibilities</div>
+              <textarea class="review-textarea" id="rv_job1_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work')"></textarea>
+            </div>
+          </div>
+          <div id="rv-job2-block" style="display:none;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
+            <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">Job 2</div>
+            <div class="review-row" style="margin-bottom:12px;">
+              <div class="review-field">
+                <div class="review-field-label">Employer</div>
+                <input class="review-input" id="rv_job2_employer" type="text" placeholder="Company name" oninput="markNavDot('work')" />
+              </div>
+              <div class="review-field">
+                <div class="review-field-label">Title</div>
+                <input class="review-input" id="rv_job2_title" type="text" placeholder="Job title" oninput="markNavDot('work')" />
+              </div>
+            </div>
+            <div class="review-field" style="margin-bottom:12px;">
+              <div class="review-field-label">Dates</div>
+              <input class="review-input" id="rv_job2_dates" type="text" placeholder="e.g. June 2020 to May 2022" oninput="markNavDot('work')" />
+            </div>
+            <div class="review-field">
+              <div class="review-field-label">Daily Tasks & Responsibilities</div>
+              <textarea class="review-textarea" id="rv_job2_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work')"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div class="review-section" id="rv-education">
+          <div class="review-section-header">
+            <div class="review-section-title">Education</div>
+          </div>
+          <div class="review-row">
+            <div class="review-field">
+              <div class="review-field-label">School Name</div>
+              <input class="review-input" id="rv_school" type="text" placeholder="School name" oninput="markNavDot('education')" />
+            </div>
+            <div class="review-field">
+              <div class="review-field-label">Degree / Level</div>
+              <input class="review-input" id="rv_degree" type="text" placeholder="e.g. High School Diploma" oninput="markNavDot('education')" />
+            </div>
+          </div>
+          <div class="review-row">
+            <div class="review-field">
+              <div class="review-field-label">Graduation Year</div>
+              <input class="review-input" id="rv_gradyear" type="text" placeholder="2024" oninput="markNavDot('education')" />
+            </div>
+            <div class="review-field">
+              <div class="review-field-label">Activities / Clubs (optional)</div>
+              <input class="review-input" id="rv_activities" type="text" placeholder="e.g. Honor Roll, Business Club" oninput="markNavDot('education')" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="review-section" id="rv-skills">
+          <div class="review-section-header">
+            <div class="review-section-title">Skills</div>
+          </div>
+          <div class="review-field">
+            <div class="review-field-label">Your Skills</div>
+            <textarea class="review-textarea" id="rv_skills" placeholder="e.g. Microsoft Office, customer service, cash handling, Spanish..." oninput="markNavDot('skills')"></textarea>
+          </div>
+        </div>
+
+        <!-- Achievement -->
+        <div class="review-section" id="rv-achievement">
+          <div class="review-section-header">
+            <div class="review-section-title">Achievement</div>
+          </div>
+          <div class="review-field">
+            <div class="review-field-label">One thing you are proud of</div>
+            <textarea class="review-textarea" id="rv_achievement" placeholder="e.g. Promoted to shift leader, trained new employees, honor roll..." oninput="markNavDot('achievement')"></textarea>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="review-actions">
+          <button class="btn-primary" id="reviewBuildBtn" onclick="buildFromReview()">Build My Resume &rarr;</button>
+          <button class="btn-ghost" onclick="goBackToQuestions()">&#8592; Back to questions</button>
+          <span class="status-text" id="reviewStatus"></span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ── SCREEN 3: Result ──────────────────────────────────────── -->
   <div id="resultScreen">
     <h2 class="screen-title" style="margin-bottom:6px;">Your resume is ready</h2>
@@ -912,7 +1258,7 @@ function oqNext() {
     oqIndex++;
     renderOQStep();
   } else {
-    buildResumeFromAnswers(oqAnswers);
+    showReview(oqAnswers);
   }
 }
 
@@ -921,7 +1267,7 @@ function oqSkip() {
     oqIndex++;
     renderOQStep();
   } else {
-    buildResumeFromAnswers(oqAnswers);
+    showReview(oqAnswers);
   }
 }
 
@@ -1118,13 +1464,13 @@ async function chatSend() {
       if (jsonStart !== -1 && jsonEnd !== -1) {
         try {
           chatAnswers = JSON.parse(aiMsg.substring(jsonStart, jsonEnd + 1));
-          addChatBubble("ai", "I have everything I need. Building your resume now...");
+          addChatBubble("ai", "Great! Let's review your information before I build the resume.");
           chatDone = true;
-          setTimeout(function() { buildResumeFromAnswers(chatAnswers); }, 800);
+          setTimeout(function() { showReview(chatAnswers); }, 800);
         } catch(e) {
-          addChatBubble("ai", "I have all your information. Building your resume now...");
+          addChatBubble("ai", "Great! Let's review your information before I build the resume.");
           chatDone = true;
-          setTimeout(function() { buildResumeFromAnswers(chatAnswers); }, 800);
+          setTimeout(function() { showReview(chatAnswers); }, 800);
         }
       }
     } else {
@@ -1141,6 +1487,168 @@ async function chatSend() {
 
 function chatKeydown(e) {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); chatSend(); }
+}
+
+
+// ── Review Screen ─────────────────────────────────────────────────────────────
+var reviewAnswers = {};
+
+function showReview(answers) {
+  reviewAnswers = answers || {};
+
+  // Populate all fields from answers
+  var fieldMap = {
+    rv_name:         answers.name         || "",
+    rv_email:        answers.email        || "",
+    rv_phone:        answers.phone        || "",
+    rv_location:     answers.location     || "",
+    rv_jobtarget:    answers.jobtarget    || "",
+    rv_job1_employer: answers.job1_employer || "",
+    rv_job1_title:   answers.job1_title   || "",
+    rv_job1_dates:   answers.job1_dates   || "",
+    rv_job1_tasks:   answers.job1_tasks   || "",
+    rv_job2_employer: answers.job2_employer || "",
+    rv_job2_title:   answers.job2_title   || "",
+    rv_job2_dates:   answers.job2_dates   || "",
+    rv_job2_tasks:   answers.job2_tasks   || "",
+    rv_school:       answers.school       || "",
+    rv_degree:       answers.degree       || "",
+    rv_gradyear:     answers.gradyear     || "",
+    rv_activities:   answers.activities   || "",
+    rv_skills:       answers.skills       || "",
+    rv_achievement:  answers.achievement  || ""
+  };
+
+  Object.keys(fieldMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = fieldMap[id];
+  });
+
+  // Show job 2 block if data exists
+  if (answers.job2_employer) {
+    document.getElementById("rv-job2-block").style.display = "block";
+  }
+
+  // Mark nav dots for sections that have data
+  ["contact","goal","work","education","skills","achievement"].forEach(function(sec) {
+    markNavDot(sec);
+  });
+
+  // Show review screen
+  document.getElementById("builderScreen").style.display = "none";
+  document.getElementById("reviewScreen").style.display  = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  // Set up scroll spy
+  setupScrollSpy();
+}
+
+function buildFromReview() {
+  var btn = document.getElementById("reviewBuildBtn");
+  var status = document.getElementById("reviewStatus");
+
+  // Read all field values back into answers object
+  var answers = {
+    name:          document.getElementById("rv_name").value.trim(),
+    email:         document.getElementById("rv_email").value.trim(),
+    phone:         document.getElementById("rv_phone").value.trim(),
+    location:      document.getElementById("rv_location").value.trim(),
+    jobtarget:     document.getElementById("rv_jobtarget").value.trim(),
+    job1_employer: document.getElementById("rv_job1_employer").value.trim(),
+    job1_title:    document.getElementById("rv_job1_title").value.trim(),
+    job1_dates:    document.getElementById("rv_job1_dates").value.trim(),
+    job1_tasks:    document.getElementById("rv_job1_tasks").value.trim(),
+    job2_employer: document.getElementById("rv_job2_employer").value.trim(),
+    job2_title:    document.getElementById("rv_job2_title").value.trim(),
+    job2_dates:    document.getElementById("rv_job2_dates").value.trim(),
+    job2_tasks:    document.getElementById("rv_job2_tasks").value.trim(),
+    school:        document.getElementById("rv_school").value.trim(),
+    degree:        document.getElementById("rv_degree").value.trim(),
+    gradyear:      document.getElementById("rv_gradyear").value.trim(),
+    activities:    document.getElementById("rv_activities").value.trim(),
+    skills:        document.getElementById("rv_skills").value.trim(),
+    achievement:   document.getElementById("rv_achievement").value.trim()
+  };
+
+  if (!answers.name) {
+    status.className = "status-text error";
+    status.innerText = "Please add your name before continuing.";
+    scrollToSection("rv-contact");
+    return;
+  }
+
+  btn.disabled = true;
+  status.className = "status-text";
+  status.innerHTML = '<span class="spinner"></span>Building your resume...';
+
+  buildResumeFromAnswers(answers);
+}
+
+function goBackToQuestions() {
+  document.getElementById("reviewScreen").style.display  = "none";
+  document.getElementById("builderScreen").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function scrollToSection(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function markNavDot(section) {
+  var sectionFieldMap = {
+    contact:     ["rv_name","rv_email","rv_phone","rv_location"],
+    goal:        ["rv_jobtarget"],
+    work:        ["rv_job1_employer","rv_job1_tasks"],
+    education:   ["rv_school","rv_degree"],
+    skills:      ["rv_skills"],
+    achievement: ["rv_achievement"]
+  };
+
+  var fields = sectionFieldMap[section] || [];
+  var hasData = fields.some(function(id) {
+    var el = document.getElementById(id);
+    return el && el.value.trim().length > 0;
+  });
+
+  var navItem = document.getElementById("nav-" + section);
+  if (navItem) {
+    if (hasData) { navItem.classList.add("has-data"); }
+    else         { navItem.classList.remove("has-data"); }
+  }
+}
+
+function setupScrollSpy() {
+  var sections = [
+    { id: "rv-contact",     nav: "nav-contact"     },
+    { id: "rv-goal",        nav: "nav-goal"         },
+    { id: "rv-work",        nav: "nav-work"         },
+    { id: "rv-education",   nav: "nav-education"    },
+    { id: "rv-skills",      nav: "nav-skills"       },
+    { id: "rv-achievement", nav: "nav-achievement"  }
+  ];
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var matched = sections.find(function(s) { return s.id === entry.target.id; });
+        if (matched) {
+          sections.forEach(function(s) {
+            var el = document.getElementById(s.nav);
+            if (el) el.classList.remove("active");
+          });
+          var activeNav = document.getElementById(matched.nav);
+          if (activeNav) activeNav.classList.add("active");
+        }
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(function(s) {
+    var el = document.getElementById(s.id);
+    if (el) observer.observe(el);
+  });
 }
 
 // ── Build resume from answers ─────────────────────────────────────────────────
@@ -1162,8 +1670,10 @@ async function buildResumeFromAnswers(answers) {
     }
   } catch(err) {
     alert("Error building resume: " + err.message);
-    document.getElementById("formSubmitBtn").disabled = false;
-    document.getElementById("formStatus").innerText = "";
+    var fBtn = document.getElementById("formSubmitBtn");
+    var rBtn = document.getElementById("reviewBuildBtn");
+    if (fBtn) { fBtn.disabled = false; document.getElementById("formStatus").innerText = ""; }
+    if (rBtn) { rBtn.disabled = false; document.getElementById("reviewStatus").innerText = ""; }
   }
 }
 
