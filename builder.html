@@ -1894,41 +1894,56 @@ function scrollToResultSection(id) {
 }
 
 function goToEditReview() {
-  document.getElementById("resultScreen").style.display = "none";
-  document.getElementById("reviewScreen").style.display = "block";
+  var fieldKeys  = ["rv_name","rv_email","rv_phone","rv_location","rv_jobtarget",
+    "rv_job1_employer","rv_job1_title","rv_job1_dates","rv_job1_tasks",
+    "rv_job2_employer","rv_job2_title","rv_job2_dates","rv_job2_tasks",
+    "rv_school","rv_degree","rv_gradyear","rv_activities","rv_skills","rv_achievement"];
+  var answerKeys = ["name","email","phone","location","jobtarget",
+    "job1_employer","job1_title","job1_dates","job1_tasks",
+    "job2_employer","job2_title","job2_dates","job2_tasks",
+    "school","degree","gradyear","activities","skills","achievement"];
 
-  // Re-populate all fields from reviewAnswers so data is never lost
-  var fieldMap = {
-    rv_name:          reviewAnswers.name          || "",
-    rv_email:         reviewAnswers.email         || "",
-    rv_phone:         reviewAnswers.phone         || "",
-    rv_location:      reviewAnswers.location      || "",
-    rv_jobtarget:     reviewAnswers.jobtarget     || "",
-    rv_job1_employer: reviewAnswers.job1_employer || "",
-    rv_job1_title:    reviewAnswers.job1_title    || "",
-    rv_job1_dates:    reviewAnswers.job1_dates    || "",
-    rv_job1_tasks:    reviewAnswers.job1_tasks    || "",
-    rv_job2_employer: reviewAnswers.job2_employer || "",
-    rv_job2_title:    reviewAnswers.job2_title    || "",
-    rv_job2_dates:    reviewAnswers.job2_dates    || "",
-    rv_job2_tasks:    reviewAnswers.job2_tasks    || "",
-    rv_school:        reviewAnswers.school        || "",
-    rv_degree:        reviewAnswers.degree        || "",
-    rv_gradyear:      reviewAnswers.gradyear      || "",
-    rv_activities:    reviewAnswers.activities    || "",
-    rv_skills:        reviewAnswers.skills        || "",
-    rv_achievement:   reviewAnswers.achievement   || ""
-  };
-
-  Object.keys(fieldMap).forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) el.value = fieldMap[id];
+  // Step 1: Snapshot any live DOM edits back into reviewAnswers before switching screens
+  fieldKeys.forEach(function(fieldId, i) {
+    var el = document.getElementById(fieldId);
+    if (el && el.value.trim()) {
+      reviewAnswers[answerKeys[i]] = el.value.trim();
+    }
   });
 
-  // Show job 2 block if data exists
+  // Step 2: Write reviewAnswers into every DOM field
+  fieldKeys.forEach(function(fieldId, i) {
+    var el = document.getElementById(fieldId);
+    if (el) { el.value = reviewAnswers[answerKeys[i]] || ""; }
+  });
+
+  // Show job 2 block if we have data for it
   if (reviewAnswers.job2_employer) {
     document.getElementById("rv-job2-block").style.display = "block";
   }
+
+  // Refresh sidebar dots
+  ["contact","goal","work","education","skills","achievement"].forEach(function(sec) {
+    markNavDot(sec);
+  });
+
+  // Switch screens
+  document.getElementById("resultScreen").style.display = "none";
+  document.getElementById("reviewScreen").style.display = "block";
+
+  // Update button text for this context
+  var buildBtn = document.getElementById("reviewBuildBtn");
+  if (buildBtn) buildBtn.innerText = "Rebuild Resume →";
+
+  var backBtn = document.querySelector("#reviewScreen .btn-ghost");
+  if (backBtn) {
+    backBtn.innerText = "← Back to result";
+    backBtn.onclick = function() { goBackToResult(); };
+  }
+
+  setupScrollSpy();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
   // Refresh nav dots
   ["contact","goal","work","education","skills","achievement"].forEach(function(sec) {
