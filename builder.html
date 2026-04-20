@@ -1652,13 +1652,31 @@ function setupScrollSpy() {
 }
 
 // ── Build resume from answers ─────────────────────────────────────────────────
+function clearBuildSpinner(msg) {
+  var fBtn = document.getElementById("formSubmitBtn");
+  var rBtn = document.getElementById("reviewBuildBtn");
+  if (fBtn) { fBtn.disabled = false; document.getElementById("formStatus").className = "status-text error"; document.getElementById("formStatus").innerText = msg; }
+  if (rBtn) { rBtn.disabled = false; document.getElementById("reviewStatus").className = "status-text error"; document.getElementById("reviewStatus").innerText = msg; }
+}
+
 async function buildResumeFromAnswers(answers) {
+  var timeoutId = setTimeout(function() {
+    clearBuildSpinner("This is taking too long. Please try again.");
+  }, 30000);
+
   try {
+    var controller = new AbortController();
+    var abortId = setTimeout(function() { controller.abort(); }, 30000);
+
     var response = await fetch("/.netlify/functions/build-resume", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ profile: selectedProfile, answers: answers })
+      body: JSON.stringify({ profile: selectedProfile, answers: answers }),
+      signal: controller.signal
     });
+
+    clearTimeout(abortId);
+    clearTimeout(timeoutId);
 
     var data = await response.json();
 
@@ -1669,16 +1687,17 @@ async function buildResumeFromAnswers(answers) {
       throw new Error(data.error || "No resume returned");
     }
   } catch(err) {
-    alert("Error building resume: " + err.message);
-    var fBtn = document.getElementById("formSubmitBtn");
-    var rBtn = document.getElementById("reviewBuildBtn");
-    if (fBtn) { fBtn.disabled = false; document.getElementById("formStatus").innerText = ""; }
-    if (rBtn) { rBtn.disabled = false; document.getElementById("reviewStatus").innerText = ""; }
+    clearTimeout(timeoutId);
+    var msg = err.name === "AbortError"
+      ? "The request timed out. Please check your connection and try again."
+      : "Something went wrong: " + err.message + ". Please try again.";
+    clearBuildSpinner(msg);
   }
 }
 
 function showResult(text) {
   document.getElementById("builderScreen").style.display = "none";
+  document.getElementById("reviewScreen").style.display  = "none";
   document.getElementById("resultScreen").style.display  = "block";
   document.getElementById("resultOutput").innerText = text;
   window.scrollTo({ top: 0, behavior: "smooth" });
