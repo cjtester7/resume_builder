@@ -1639,6 +1639,9 @@ function buildFromReview() {
     return;
   }
 
+  // Keep reviewAnswers in sync with any edits made in the review screen
+  reviewAnswers = answers;
+
   btn.disabled = true;
   status.className = "status-text";
   status.innerHTML = '<span class="spinner"></span>Building your resume...';
@@ -1891,18 +1894,58 @@ function scrollToResultSection(id) {
 }
 
 function goToEditReview() {
-  // Go back to review screen with current answers pre-filled
   document.getElementById("resultScreen").style.display = "none";
   document.getElementById("reviewScreen").style.display = "block";
 
-  // Update review action button to say "Rebuild Resume"
+  // Re-populate all fields from reviewAnswers so data is never lost
+  var fieldMap = {
+    rv_name:          reviewAnswers.name          || "",
+    rv_email:         reviewAnswers.email         || "",
+    rv_phone:         reviewAnswers.phone         || "",
+    rv_location:      reviewAnswers.location      || "",
+    rv_jobtarget:     reviewAnswers.jobtarget     || "",
+    rv_job1_employer: reviewAnswers.job1_employer || "",
+    rv_job1_title:    reviewAnswers.job1_title    || "",
+    rv_job1_dates:    reviewAnswers.job1_dates    || "",
+    rv_job1_tasks:    reviewAnswers.job1_tasks    || "",
+    rv_job2_employer: reviewAnswers.job2_employer || "",
+    rv_job2_title:    reviewAnswers.job2_title    || "",
+    rv_job2_dates:    reviewAnswers.job2_dates    || "",
+    rv_job2_tasks:    reviewAnswers.job2_tasks    || "",
+    rv_school:        reviewAnswers.school        || "",
+    rv_degree:        reviewAnswers.degree        || "",
+    rv_gradyear:      reviewAnswers.gradyear      || "",
+    rv_activities:    reviewAnswers.activities    || "",
+    rv_skills:        reviewAnswers.skills        || "",
+    rv_achievement:   reviewAnswers.achievement   || ""
+  };
+
+  Object.keys(fieldMap).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = fieldMap[id];
+  });
+
+  // Show job 2 block if data exists
+  if (reviewAnswers.job2_employer) {
+    document.getElementById("rv-job2-block").style.display = "block";
+  }
+
+  // Refresh nav dots
+  ["contact","goal","work","education","skills","achievement"].forEach(function(sec) {
+    markNavDot(sec);
+  });
+
+  // Update button labels for this context
   var btn = document.getElementById("reviewBuildBtn");
-  if (btn) btn.innerText = "Rebuild Resume \u2192";
+  if (btn) btn.innerText = "Rebuild Resume →";
 
-  // Update back button context
   var backBtn = document.querySelector("#reviewScreen .btn-ghost");
-  if (backBtn) { backBtn.innerText = "\u2190 Back to result"; backBtn.onclick = function() { goBackToResult(); }; }
+  if (backBtn) {
+    backBtn.innerText = "← Back to result";
+    backBtn.onclick = function() { goBackToResult(); };
+  }
 
+  setupScrollSpy();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
