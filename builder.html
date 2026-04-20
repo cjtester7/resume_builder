@@ -1596,8 +1596,9 @@ function showReview(answers) {
     markNavDot(sec);
   });
 
-  // Show review screen
+  // Show review screen — hide all other screens
   document.getElementById("builderScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display  = "none";
   document.getElementById("reviewScreen").style.display  = "block";
   window.scrollTo({ top: 0, behavior: "smooth" });
 
@@ -1894,44 +1895,12 @@ function scrollToResultSection(id) {
 }
 
 function goToEditReview() {
-  var fieldKeys  = ["rv_name","rv_email","rv_phone","rv_location","rv_jobtarget",
-    "rv_job1_employer","rv_job1_title","rv_job1_dates","rv_job1_tasks",
-    "rv_job2_employer","rv_job2_title","rv_job2_dates","rv_job2_tasks",
-    "rv_school","rv_degree","rv_gradyear","rv_activities","rv_skills","rv_achievement"];
-  var answerKeys = ["name","email","phone","location","jobtarget",
-    "job1_employer","job1_title","job1_dates","job1_tasks",
-    "job2_employer","job2_title","job2_dates","job2_tasks",
-    "school","degree","gradyear","activities","skills","achievement"];
+  // showReview() already handles all field population correctly —
+  // just call it with the stored reviewAnswers so data is always right
+  showReview(reviewAnswers);
 
-  // Step 1: Snapshot any live DOM edits back into reviewAnswers before switching screens
-  fieldKeys.forEach(function(fieldId, i) {
-    var el = document.getElementById(fieldId);
-    if (el && el.value.trim()) {
-      reviewAnswers[answerKeys[i]] = el.value.trim();
-    }
-  });
-
-  // Step 2: Write reviewAnswers into every DOM field
-  fieldKeys.forEach(function(fieldId, i) {
-    var el = document.getElementById(fieldId);
-    if (el) { el.value = reviewAnswers[answerKeys[i]] || ""; }
-  });
-
-  // Show job 2 block if we have data for it
-  if (reviewAnswers.job2_employer) {
-    document.getElementById("rv-job2-block").style.display = "block";
-  }
-
-  // Refresh sidebar dots
-  ["contact","goal","work","education","skills","achievement"].forEach(function(sec) {
-    markNavDot(sec);
-  });
-
-  // Switch screens
-  document.getElementById("resultScreen").style.display = "none";
-  document.getElementById("reviewScreen").style.display = "block";
-
-  // Update button text for this context
+  // After showReview shows the review screen, update button labels
+  // to reflect that we're coming back from the result screen
   var buildBtn = document.getElementById("reviewBuildBtn");
   if (buildBtn) buildBtn.innerText = "Rebuild Resume →";
 
@@ -1940,9 +1909,6 @@ function goToEditReview() {
     backBtn.innerText = "← Back to result";
     backBtn.onclick = function() { goBackToResult(); };
   }
-
-  setupScrollSpy();
-  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 
