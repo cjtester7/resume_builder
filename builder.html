@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder — ResumeAI</title>
+  <title>Resume Builder v5 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -487,6 +487,31 @@
     .chat-send:hover { opacity: 0.85; }
     .chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
+
+
+    .result-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 12px;
+      scroll-margin-top: 24px;
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text);
+    }
+
+    .result-section:empty { display: none; }
+
+    .result-section-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
 
     /* ── Review Screen ──────────────────────────────────────────── */
     .review-layout {
@@ -1129,19 +1154,56 @@
 
   <!-- ── SCREEN 3: Result ──────────────────────────────────────── -->
   <div id="resultScreen">
-    <h2 class="screen-title" style="margin-bottom:6px;">Your resume is ready</h2>
-    <p class="screen-subtitle">Review it below. You can copy it, download it, or send it straight to the optimizer to tailor it for a specific job.</p>
+    <div class="review-layout">
 
-    <div class="result-actions">
-      <button class="btn-optimizer" onclick="sendToOptimizer()">&#9889; Optimize for a Job &rarr;</button>
-      <button class="btn-secondary" onclick="downloadResumeAsText()">&#8595; Download TXT</button>
-      <button class="btn-ghost" onclick="startOver()">Start over</button>
-    </div>
+      <!-- Sidebar nav -->
+      <div class="review-sidebar">
+        <div class="review-sidebar-title">Sections</div>
+        <button class="review-nav-item active" onclick="scrollToResultSection('rs-contact')" id="rsnav-contact">
+          <span class="review-nav-dot"></span> Contact
+        </button>
+        <button class="review-nav-item" onclick="scrollToResultSection('rs-objective')" id="rsnav-objective">
+          <span class="review-nav-dot"></span> Objective
+        </button>
+        <button class="review-nav-item" onclick="scrollToResultSection('rs-experience')" id="rsnav-experience">
+          <span class="review-nav-dot"></span> Experience
+        </button>
+        <button class="review-nav-item" onclick="scrollToResultSection('rs-education')" id="rsnav-education">
+          <span class="review-nav-dot"></span> Education
+        </button>
+        <button class="review-nav-item" onclick="scrollToResultSection('rs-skills')" id="rsnav-skills">
+          <span class="review-nav-dot"></span> Skills
+        </button>
+      </div>
 
-    <div class="result-output" id="resultOutput"></div>
+      <!-- Main result area -->
+      <div class="review-main">
+        <h2 class="screen-title" style="margin-bottom:6px;">Your resume is ready</h2>
+        <p class="screen-subtitle" style="margin-bottom:16px;">Review it below, make edits if needed, then download or send to the optimizer.</p>
 
-    <div class="result-hint">
-      <strong>Tip:</strong> Click <strong>Optimize for a Job</strong> to paste this resume into the optimizer along with a job description — the AI will tailor the keywords, tone, and format specifically for that role.
+        <div class="result-actions" style="margin-bottom:16px;">
+          <button class="btn-optimizer" onclick="sendToOptimizer()">&#9889; Optimize for a Job &rarr;</button>
+          <button class="btn-secondary" onclick="goToEditReview()">&#9998; Edit Details</button>
+          <button class="btn-secondary" onclick="downloadResumeAsText()">&#8595; Download TXT</button>
+          <button class="btn-ghost" onclick="startOver()">Start over</button>
+        </div>
+
+        <div class="result-hint" style="margin-bottom:16px;">
+          <strong>Tip:</strong> Click <strong>Optimize for a Job</strong> to tailor this resume to a specific role, or <strong>Edit Details</strong> to go back and change any section.
+        </div>
+
+        <div id="resultSections">
+          <div class="result-section" id="rs-contact"></div>
+          <div class="result-section" id="rs-objective"></div>
+          <div class="result-section" id="rs-experience"></div>
+          <div class="result-section" id="rs-education"></div>
+          <div class="result-section" id="rs-skills"></div>
+          <div class="result-section" id="rs-other"></div>
+        </div>
+
+        <div class="result-output" id="resultOutput" style="display:none;"></div>
+      </div>
+
     </div>
   </div>
 
@@ -1696,10 +1758,157 @@ async function buildResumeFromAnswers(answers) {
 }
 
 function showResult(text) {
+  generatedResume = text;
   document.getElementById("builderScreen").style.display = "none";
   document.getElementById("reviewScreen").style.display  = "none";
   document.getElementById("resultScreen").style.display  = "block";
   document.getElementById("resultOutput").innerText = text;
+
+  // Parse resume into sections and populate cards
+  parseResultSections(text);
+  setupResultScrollSpy();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function parseResultSections(text) {
+  // Map common resume section headers to their card IDs
+  var sectionMap = [
+    { id: "rs-contact",    patterns: [/^(contact|name|address|phone|email)/i] },
+    { id: "rs-objective",  patterns: [/^(objective|summary|profile|about)/i]  },
+    { id: "rs-experience", patterns: [/^(work|experience|employment|history)/i] },
+    { id: "rs-education",  patterns: [/^(education|school|degree|academic)/i]  },
+    { id: "rs-skills",     patterns: [/^(skill|technical|competenc)/i]         }
+  ];
+
+  // Clear all section cards
+  ["rs-contact","rs-objective","rs-experience","rs-education","rs-skills","rs-other"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = "";
+  });
+
+  // Split by lines and group into sections
+  var lines     = text.split("\n");
+  var sections  = [];
+  var current   = { header: "", lines: [] };
+
+  lines.forEach(function(line) {
+    var trimmed = line.trim();
+    // Detect section headers — ALL CAPS lines or lines followed by dashes
+    var isHeader = trimmed.length > 0 && trimmed === trimmed.toUpperCase() && trimmed.length < 40 && /[A-Z]/.test(trimmed);
+    if (isHeader && trimmed.length > 2) {
+      if (current.lines.length > 0 || current.header) {
+        sections.push(current);
+      }
+      current = { header: trimmed, lines: [] };
+    } else {
+      current.lines.push(line);
+    }
+  });
+  if (current.lines.length > 0 || current.header) { sections.push(current); }
+
+  // Place each section into the right card
+  sections.forEach(function(sec) {
+    var targetId = "rs-other";
+    sectionMap.forEach(function(sm) {
+      sm.patterns.forEach(function(pat) {
+        if (pat.test(sec.header)) { targetId = sm.id; }
+      });
+    });
+
+    var el = document.getElementById(targetId);
+    if (!el) return;
+
+    var content = "";
+    if (sec.header) {
+      content += '<div class="result-section-label">' + sec.header + '</div>';
+    }
+    content += '<div style="white-space:pre-wrap;">' + escHtml(sec.lines.join("\n").trim()) + '</div>';
+
+    // If multiple sections map to same card, append
+    if (el.innerHTML) {
+      el.innerHTML += '<div style="border-top:1px solid var(--border);margin:12px 0;"></div>' + content;
+    } else {
+      el.innerHTML = content;
+    }
+  });
+
+  // Mark nav dots that have content
+  var navMap = {
+    "rs-contact":    "rsnav-contact",
+    "rs-objective":  "rsnav-objective",
+    "rs-experience": "rsnav-experience",
+    "rs-education":  "rsnav-education",
+    "rs-skills":     "rsnav-skills"
+  };
+  Object.keys(navMap).forEach(function(secId) {
+    var el  = document.getElementById(secId);
+    var nav = document.getElementById(navMap[secId]);
+    if (el && nav && el.innerHTML.trim()) { nav.classList.add("has-data"); }
+  });
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;");
+}
+
+function setupResultScrollSpy() {
+  var sections = [
+    { id: "rs-contact",    nav: "rsnav-contact"    },
+    { id: "rs-objective",  nav: "rsnav-objective"  },
+    { id: "rs-experience", nav: "rsnav-experience" },
+    { id: "rs-education",  nav: "rsnav-education"  },
+    { id: "rs-skills",     nav: "rsnav-skills"     }
+  ];
+
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        var matched = sections.find(function(s) { return s.id === entry.target.id; });
+        if (matched) {
+          sections.forEach(function(s) {
+            var el = document.getElementById(s.nav);
+            if (el) el.classList.remove("active");
+          });
+          var activeNav = document.getElementById(matched.nav);
+          if (activeNav) activeNav.classList.add("active");
+        }
+      }
+    });
+  }, { threshold: 0.2 });
+
+  sections.forEach(function(s) {
+    var el = document.getElementById(s.id);
+    if (el) observer.observe(el);
+  });
+}
+
+function scrollToResultSection(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function goToEditReview() {
+  // Go back to review screen with current answers pre-filled
+  document.getElementById("resultScreen").style.display = "none";
+  document.getElementById("reviewScreen").style.display = "block";
+
+  // Update review action button to say "Rebuild Resume"
+  var btn = document.getElementById("reviewBuildBtn");
+  if (btn) btn.innerText = "Rebuild Resume \u2192";
+
+  // Update back button context
+  var backBtn = document.querySelector("#reviewScreen .btn-ghost");
+  if (backBtn) { backBtn.innerText = "\u2190 Back to result"; backBtn.onclick = function() { goBackToResult(); }; }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function goBackToResult() {
+  document.getElementById("reviewScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
