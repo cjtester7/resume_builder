@@ -1945,24 +1945,6 @@ function goToEditReview() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-  // Refresh nav dots
-  ["contact","goal","work","education","skills","achievement"].forEach(function(sec) {
-    markNavDot(sec);
-  });
-
-  // Update button labels for this context
-  var btn = document.getElementById("reviewBuildBtn");
-  if (btn) btn.innerText = "Rebuild Resume →";
-
-  var backBtn = document.querySelector("#reviewScreen .btn-ghost");
-  if (backBtn) {
-    backBtn.innerText = "← Back to result";
-    backBtn.onclick = function() { goBackToResult(); };
-  }
-
-  setupScrollSpy();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
 
 function goBackToResult() {
   document.getElementById("reviewScreen").style.display = "none";
