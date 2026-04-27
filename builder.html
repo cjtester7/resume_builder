@@ -513,6 +513,61 @@
       margin-bottom: 10px;
     }
 
+
+    .draft-status {
+      font-size: 11px;
+      color: var(--accent);
+      margin-left: 10px;
+      opacity: 0;
+      transition: opacity 0.4s;
+      vertical-align: middle;
+    }
+
+    .draft-status.visible { opacity: 1; }
+
+    .draft-banner {
+      background: var(--amber-light);
+      border: 1px solid var(--amber-border);
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .draft-banner-actions { display: flex; gap: 8px; }
+
+    .btn-draft-resume {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--accent-border);
+      border-radius: 5px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-draft-resume:hover { background: var(--accent-light); }
+
+    .btn-draft-clear {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 5px 4px;
+      text-decoration: underline;
+    }
+
     /* ── Review Screen ──────────────────────────────────────────── */
     .review-layout {
       display: grid;
@@ -1001,8 +1056,15 @@
         <h2 class="screen-title" style="margin-bottom:6px;">Review your information</h2>
         <p class="screen-subtitle" style="margin-bottom:16px;">Check each section and make any changes before we build your resume.</p>
 
+        <div id="draftBanner" class="draft-banner" style="display:none;">
+          <span>&#128196; You have a saved draft. Want to pick up where you left off?</span>
+          <div class="draft-banner-actions">
+            <button class="btn-draft-resume" onclick="loadDraft()">Resume Draft</button>
+            <button class="btn-draft-clear" onclick="clearDraft()">Discard</button>
+          </div>
+        </div>
         <div class="review-hint">
-          &#9998; Click any field to edit. Changes are saved automatically as you type.
+          &#9998; Click any field to edit. <span id="draftStatus" class="draft-status">&#10003; Draft saved</span>
         </div>
 
         <!-- Contact -->
@@ -1013,21 +1075,21 @@
           <div class="review-row">
             <div class="review-field">
               <div class="review-field-label">Full Name</div>
-              <input class="review-input" id="rv_name" type="text" placeholder="Your full name" oninput="markNavDot('contact')" />
+              <input class="review-input" id="rv_name" type="text" placeholder="Your full name" oninput="markNavDot('contact'); saveDraft()" />
             </div>
             <div class="review-field">
               <div class="review-field-label">Email</div>
-              <input class="review-input" id="rv_email" type="email" placeholder="your@email.com" oninput="markNavDot('contact')" />
+              <input class="review-input" id="rv_email" type="email" placeholder="your@email.com" oninput="markNavDot('contact'); saveDraft()" />
             </div>
           </div>
           <div class="review-row">
             <div class="review-field">
               <div class="review-field-label">Phone</div>
-              <input class="review-input" id="rv_phone" type="tel" placeholder="(555) 555-5555" oninput="markNavDot('contact')" />
+              <input class="review-input" id="rv_phone" type="tel" placeholder="(555) 555-5555" oninput="markNavDot('contact'); saveDraft()" />
             </div>
             <div class="review-field">
               <div class="review-field-label">City, State</div>
-              <input class="review-input" id="rv_location" type="text" placeholder="Baltimore, MD" oninput="markNavDot('contact')" />
+              <input class="review-input" id="rv_location" type="text" placeholder="Baltimore, MD" oninput="markNavDot('contact'); saveDraft()" />
             </div>
           </div>
         </div>
@@ -1039,7 +1101,7 @@
           </div>
           <div class="review-field">
             <div class="review-field-label">What kind of job are you looking for?</div>
-            <input class="review-input" id="rv_jobtarget" type="text" placeholder="e.g. Server, Customer Service Rep, IT Support" oninput="markNavDot('goal')" />
+            <input class="review-input" id="rv_jobtarget" type="text" placeholder="e.g. Server, Customer Service Rep, IT Support" oninput="markNavDot('goal'); saveDraft()" />
           </div>
         </div>
 
@@ -1053,20 +1115,20 @@
             <div class="review-row" style="margin-bottom:12px;">
               <div class="review-field">
                 <div class="review-field-label">Employer</div>
-                <input class="review-input" id="rv_job1_employer" type="text" placeholder="Company name" oninput="markNavDot('work')" />
+                <input class="review-input" id="rv_job1_employer" type="text" placeholder="Company name" oninput="markNavDot('work'); saveDraft()" />
               </div>
               <div class="review-field">
                 <div class="review-field-label">Title</div>
-                <input class="review-input" id="rv_job1_title" type="text" placeholder="Job title" oninput="markNavDot('work')" />
+                <input class="review-input" id="rv_job1_title" type="text" placeholder="Job title" oninput="markNavDot('work'); saveDraft()" />
               </div>
             </div>
             <div class="review-field" style="margin-bottom:12px;">
               <div class="review-field-label">Dates</div>
-              <input class="review-input" id="rv_job1_dates" type="text" placeholder="e.g. June 2022 to Present" oninput="markNavDot('work')" />
+              <input class="review-input" id="rv_job1_dates" type="text" placeholder="e.g. June 2022 to Present" oninput="markNavDot('work'); saveDraft()" />
             </div>
             <div class="review-field">
               <div class="review-field-label">Daily Tasks & Responsibilities</div>
-              <textarea class="review-textarea" id="rv_job1_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work')"></textarea>
+              <textarea class="review-textarea" id="rv_job1_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work'); saveDraft()" ></textarea>
             </div>
           </div>
           <div id="rv-job2-block" style="display:none;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
@@ -1074,20 +1136,20 @@
             <div class="review-row" style="margin-bottom:12px;">
               <div class="review-field">
                 <div class="review-field-label">Employer</div>
-                <input class="review-input" id="rv_job2_employer" type="text" placeholder="Company name" oninput="markNavDot('work')" />
+                <input class="review-input" id="rv_job2_employer" type="text" placeholder="Company name" oninput="markNavDot('work'); saveDraft()" />
               </div>
               <div class="review-field">
                 <div class="review-field-label">Title</div>
-                <input class="review-input" id="rv_job2_title" type="text" placeholder="Job title" oninput="markNavDot('work')" />
+                <input class="review-input" id="rv_job2_title" type="text" placeholder="Job title" oninput="markNavDot('work'); saveDraft()" />
               </div>
             </div>
             <div class="review-field" style="margin-bottom:12px;">
               <div class="review-field-label">Dates</div>
-              <input class="review-input" id="rv_job2_dates" type="text" placeholder="e.g. June 2020 to May 2022" oninput="markNavDot('work')" />
+              <input class="review-input" id="rv_job2_dates" type="text" placeholder="e.g. June 2020 to May 2022" oninput="markNavDot('work'); saveDraft()" />
             </div>
             <div class="review-field">
               <div class="review-field-label">Daily Tasks & Responsibilities</div>
-              <textarea class="review-textarea" id="rv_job2_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work')"></textarea>
+              <textarea class="review-textarea" id="rv_job2_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work'); saveDraft()" ></textarea>
             </div>
           </div>
         </div>
@@ -1100,21 +1162,21 @@
           <div class="review-row">
             <div class="review-field">
               <div class="review-field-label">School Name</div>
-              <input class="review-input" id="rv_school" type="text" placeholder="School name" oninput="markNavDot('education')" />
+              <input class="review-input" id="rv_school" type="text" placeholder="School name" oninput="markNavDot('education'); saveDraft()" />
             </div>
             <div class="review-field">
               <div class="review-field-label">Degree / Level</div>
-              <input class="review-input" id="rv_degree" type="text" placeholder="e.g. High School Diploma" oninput="markNavDot('education')" />
+              <input class="review-input" id="rv_degree" type="text" placeholder="e.g. High School Diploma" oninput="markNavDot('education'); saveDraft()" />
             </div>
           </div>
           <div class="review-row">
             <div class="review-field">
               <div class="review-field-label">Graduation Year</div>
-              <input class="review-input" id="rv_gradyear" type="text" placeholder="2024" oninput="markNavDot('education')" />
+              <input class="review-input" id="rv_gradyear" type="text" placeholder="2024" oninput="markNavDot('education'); saveDraft()" />
             </div>
             <div class="review-field">
               <div class="review-field-label">Activities / Clubs (optional)</div>
-              <input class="review-input" id="rv_activities" type="text" placeholder="e.g. Honor Roll, Business Club" oninput="markNavDot('education')" />
+              <input class="review-input" id="rv_activities" type="text" placeholder="e.g. Honor Roll, Business Club" oninput="markNavDot('education'); saveDraft()" />
             </div>
           </div>
         </div>
@@ -1126,7 +1188,7 @@
           </div>
           <div class="review-field">
             <div class="review-field-label">Your Skills</div>
-            <textarea class="review-textarea" id="rv_skills" placeholder="e.g. Microsoft Office, customer service, cash handling, Spanish..." oninput="markNavDot('skills')"></textarea>
+            <textarea class="review-textarea" id="rv_skills" placeholder="e.g. Microsoft Office, customer service, cash handling, Spanish..." oninput="markNavDot('skills'); saveDraft()" ></textarea>
           </div>
         </div>
 
@@ -1137,14 +1199,14 @@
           </div>
           <div class="review-field">
             <div class="review-field-label">One thing you are proud of</div>
-            <textarea class="review-textarea" id="rv_achievement" placeholder="e.g. Promoted to shift leader, trained new employees, honor roll..." oninput="markNavDot('achievement')"></textarea>
+            <textarea class="review-textarea" id="rv_achievement" placeholder="e.g. Promoted to shift leader, trained new employees, honor roll..." oninput="markNavDot('achievement'); saveDraft()" ></textarea>
           </div>
         </div>
 
         <!-- Actions -->
         <div class="review-actions">
           <button class="btn-primary" id="reviewBuildBtn" onclick="buildFromReview()">Build My Resume &rarr;</button>
-          <button class="btn-ghost" onclick="goBackToQuestions()">&#8592; Back to questions</button>
+          <button class="btn-ghost" id="reviewBackBtn" onclick="goBackToQuestions()">&#8592; Back to questions</button>
           <span class="status-text" id="reviewStatus"></span>
         </div>
 
@@ -1721,6 +1783,146 @@ function setupScrollSpy() {
   });
 }
 
+
+// ── Draft save / restore (localStorage) ──────────────────────────────────────
+var DRAFT_KEY    = "resumeai_builder_draft";
+var draftTimer   = null;
+
+function saveDraft() {
+  // Debounce — only write after 600ms of inactivity
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(function() {
+    var fieldKeys  = ["rv_name","rv_email","rv_phone","rv_location","rv_jobtarget",
+      "rv_job1_employer","rv_job1_title","rv_job1_dates","rv_job1_tasks",
+      "rv_job2_employer","rv_job2_title","rv_job2_dates","rv_job2_tasks",
+      "rv_school","rv_degree","rv_gradyear","rv_activities","rv_skills","rv_achievement"];
+    var answerKeys = ["name","email","phone","location","jobtarget",
+      "job1_employer","job1_title","job1_dates","job1_tasks",
+      "job2_employer","job2_title","job2_dates","job2_tasks",
+      "school","degree","gradyear","activities","skills","achievement"];
+
+    var draft = {};
+    fieldKeys.forEach(function(fieldId, i) {
+      var el = document.getElementById(fieldId);
+      if (el) { draft[answerKeys[i]] = el.value; }
+    });
+
+    // Also update reviewAnswers so Back to result is always in sync
+    reviewAnswers = JSON.parse(JSON.stringify(draft));
+
+    saveDraftData(draft);
+    showDraftSavedIndicator();
+  }, 600);
+}
+
+function saveDraftData(data) {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({
+      data:      data,
+      savedAt:   new Date().toISOString(),
+      profile:   selectedProfile
+    }));
+  } catch(e) {
+    console.warn("Draft save failed:", e.message);
+  }
+}
+
+function loadDraft() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    var draft = JSON.parse(raw);
+    if (!draft.data) return;
+
+    // Restore profile if saved
+    if (draft.profile) {
+      selectedProfile = draft.profile;
+      document.querySelectorAll(".profile-btn").forEach(function(b) {
+        b.classList.toggle("selected", b.getAttribute("data-profile") === draft.profile);
+      });
+    }
+
+    reviewAnswers = JSON.parse(JSON.stringify(draft.data));
+    hideDraftBanner();
+    showReview(reviewAnswers);
+  } catch(e) {
+    console.warn("Draft load failed:", e.message);
+  }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch(e) {}
+  hideDraftBanner();
+}
+
+function hideDraftBanner() {
+  var el = document.getElementById("draftBanner");
+  if (el) el.style.display = "none";
+}
+
+function showDraftSavedIndicator() {
+  var el = document.getElementById("draftStatus");
+  if (!el) return;
+  el.classList.add("visible");
+  setTimeout(function() { el.classList.remove("visible"); }, 2000);
+}
+
+function checkForDraft() {
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    var draft = JSON.parse(raw);
+    if (!draft.data || !draft.data.name) return;
+
+    // Only show banner if we're on the review screen
+    var banner = document.getElementById("draftBanner");
+    if (banner) {
+      var savedAt = draft.savedAt ? new Date(draft.savedAt).toLocaleString() : "";
+      banner.querySelector("span").innerHTML =
+        "&#128196; You have a saved draft for <strong>" + (draft.data.name || "your resume") + "</strong>" +
+        (savedAt ? " — last saved " + savedAt : "") + ". Pick up where you left off?";
+      banner.style.display = "flex";
+    }
+  } catch(e) {}
+}
+
+// Check for draft when review screen becomes visible
+var _origShowReview = showReview;
+showReview = function(answers) {
+  _origShowReview(answers);
+  // Show draft banner only if the incoming answers are empty/minimal
+  // and a richer draft exists in localStorage
+  try {
+    var raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      var draft = JSON.parse(raw);
+      var incomingName = answers && answers.name ? answers.name.trim() : "";
+      var draftName    = draft.data && draft.data.name ? draft.data.name.trim() : "";
+      // Show banner only if draft has a name but incoming doesn't
+      // (avoids showing it when we already have good data)
+      if (draftName && !incomingName) {
+        checkForDraft();
+      }
+    }
+  } catch(e) {}
+};
+
+// Also clear draft after a successful resume build
+var _origBuildResume = buildResumeFromAnswers;
+buildResumeFromAnswers = async function(answers) {
+  await _origBuildResume(answers);
+};
+
+// Check on page load in case user navigates directly to /builder
+window.addEventListener("load", function() {
+  // Small delay to let the DOM settle
+  setTimeout(function() {
+    var reviewVisible = document.getElementById("reviewScreen") &&
+      document.getElementById("reviewScreen").style.display !== "none";
+    if (reviewVisible) { checkForDraft(); }
+  }, 300);
+});
+
 // ── Build resume from answers ─────────────────────────────────────────────────
 function clearBuildSpinner(msg) {
   var fBtn = document.getElementById("formSubmitBtn");
@@ -1752,6 +1954,7 @@ async function buildResumeFromAnswers(answers) {
 
     if (data.result) {
       generatedResume = data.result;
+      clearDraft();
       showResult(generatedResume);
     } else {
       throw new Error(data.error || "No resume returned");
@@ -1917,6 +2120,25 @@ function goToEditReview() {
 
 
 function goBackToResult() {
+  // Flush current field values into reviewAnswers before leaving
+  // so no edits are lost when returning to the result screen
+  var fieldKeys  = ["rv_name","rv_email","rv_phone","rv_location","rv_jobtarget",
+    "rv_job1_employer","rv_job1_title","rv_job1_dates","rv_job1_tasks",
+    "rv_job2_employer","rv_job2_title","rv_job2_dates","rv_job2_tasks",
+    "rv_school","rv_degree","rv_gradyear","rv_activities","rv_skills","rv_achievement"];
+  var answerKeys = ["name","email","phone","location","jobtarget",
+    "job1_employer","job1_title","job1_dates","job1_tasks",
+    "job2_employer","job2_title","job2_dates","job2_tasks",
+    "school","degree","gradyear","activities","skills","achievement"];
+
+  fieldKeys.forEach(function(fieldId, i) {
+    var el = document.getElementById(fieldId);
+    if (el) { reviewAnswers[answerKeys[i]] = el.value.trim(); }
+  });
+
+  // Save updated answers to draft
+  saveDraftData(reviewAnswers);
+
   document.getElementById("reviewScreen").style.display = "none";
   document.getElementById("resultScreen").style.display = "block";
   window.scrollTo({ top: 0, behavior: "smooth" });
