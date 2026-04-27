@@ -1895,6 +1895,9 @@ function scrollToResultSection(id) {
 }
 
 function goToEditReview() {
+  // DEBUG — remove after confirming fix
+  console.log("goToEditReview called. reviewAnswers:", JSON.stringify(reviewAnswers));
+  alert("DEBUG reviewAnswers.name = [" + reviewAnswers.name + "] keys: " + Object.keys(reviewAnswers).join(", "));
   // showReview() already handles all field population correctly —
   // just call it with the stored reviewAnswers so data is always right
   showReview(reviewAnswers);
