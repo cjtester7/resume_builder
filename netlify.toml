@@ -2,6 +2,9 @@
   publish = "."
   functions = "netlify/functions"
 
+[functions]
+  node_bundler = "esbuild"
+
 # Optimizer
 [[redirects]]
   from = "/optimizer"
@@ -11,5 +14,11 @@
 # Builder
 [[redirects]]
   from = "/builder"
-  to = "/builder.html"
+  to = "/builder-v16.html"
+  status = 200
+
+# Stripe webhook — must NOT be cached or redirected
+[[redirects]]
+  from = "/api/stripe-webhook"
+  to = "/.netlify/functions/stripe-webhook"
   status = 200
