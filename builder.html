@@ -1414,6 +1414,9 @@ function submitForm() {
     return;
   }
 
+  // Store a deep copy so Edit Details works after form submission
+  reviewAnswers = JSON.parse(JSON.stringify(answers));
+
   document.getElementById("formSubmitBtn").disabled = true;
   document.getElementById("formStatus").className = "status-text";
   document.getElementById("formStatus").innerHTML = '<span class="spinner"></span>Building your resume...';
@@ -1556,7 +1559,8 @@ function chatKeydown(e) {
 var reviewAnswers = {};
 
 function showReview(answers) {
-  reviewAnswers = answers || {};
+  // Store a deep copy so reviewAnswers is independent of oqAnswers/chatAnswers
+  reviewAnswers = JSON.parse(JSON.stringify(answers || {}));
 
   // Populate all fields from answers
   var fieldMap = {
@@ -1641,7 +1645,7 @@ function buildFromReview() {
   }
 
   // Keep reviewAnswers in sync with any edits made in the review screen
-  reviewAnswers = answers;
+  reviewAnswers = JSON.parse(JSON.stringify(answers));
 
   btn.disabled = true;
   status.className = "status-text";
@@ -1895,9 +1899,6 @@ function scrollToResultSection(id) {
 }
 
 function goToEditReview() {
-  // DEBUG — remove after confirming fix
-  console.log("goToEditReview called. reviewAnswers:", JSON.stringify(reviewAnswers));
-  alert("DEBUG reviewAnswers.name = [" + reviewAnswers.name + "] keys: " + Object.keys(reviewAnswers).join(", "));
   // showReview() already handles all field population correctly —
   // just call it with the stored reviewAnswers so data is always right
   showReview(reviewAnswers);
