@@ -1,6 +1,6 @@
 <!--
-  FILE:    builder-v17.html
-  VERSION: v17
+  FILE:    builder-v19.html
+  VERSION: v19
   UPDATED: 2026-04-27
   CHANGES: Added Save Draft feature backed by Google Sheets.
            Email prompt for unauthenticated users to identify drafts.
@@ -11,13 +11,15 @@
            Full form now routes through review screen (Save Draft available).
            Result screen: dash separator lines stripped from section cards.
            Result screen: stricter dash filter and header whitelist to prevent names being parsed as headers.
+           v18: Download button fix — generatedResume persisted in sessionStorage across renders.
+           v19: Added '+ Add another job' button to review screen Work History section.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder v17 — ResumeAI</title>
+  <title>Resume Builder v19 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1354,6 +1356,7 @@
               <textarea class="review-textarea" id="rv_job1_tasks" placeholder="Describe what you did there..." oninput="markNavDot('work'); saveDraft()" ></textarea>
             </div>
           </div>
+          <button class="btn-add-job" id="rv-add-job-btn" onclick="showReviewJob2()" style="margin-bottom:14px;">+ Add another job</button>
           <div id="rv-job2-block" style="display:none;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);">
             <div style="font-size:12px;font-weight:500;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:0.05em;">Job 2</div>
             <div class="review-row" style="margin-bottom:12px;">
@@ -1874,6 +1877,12 @@ function showReview(answers) {
   // Show job 2 block if data exists
   if (answers.job2_employer) {
     document.getElementById("rv-job2-block").style.display = "block";
+    var addBtn = document.getElementById("rv-add-job-btn");
+    if (addBtn) addBtn.style.display = "none";
+  } else {
+    document.getElementById("rv-job2-block").style.display = "none";
+    var addBtn = document.getElementById("rv-add-job-btn");
+    if (addBtn) addBtn.style.display = "block";
   }
 
   // Mark nav dots for sections that have data
@@ -1945,6 +1954,12 @@ function scrollToSection(id) {
   var el = document.getElementById(id);
   if (!el) return;
   el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function showReviewJob2() {
+  document.getElementById("rv-job2-block").style.display = "block";
+  document.getElementById("rv-add-job-btn").style.display = "none";
+  document.getElementById("rv_job2_employer").focus();
 }
 
 function markNavDot(section) {
@@ -2173,6 +2188,7 @@ async function buildResumeFromAnswers(answers) {
 
     if (data.result) {
       generatedResume = data.result;
+      sessionStorage.setItem("builderResume", generatedResume);
       clearDraft();
       showResult(generatedResume);
     } else {
@@ -2188,7 +2204,7 @@ async function buildResumeFromAnswers(answers) {
 }
 
 function showResult(text) {
-  generatedResume = text;
+  generatedResume = text || sessionStorage.getItem("builderResume") || "";
   document.getElementById("builderScreen").style.display = "none";
   document.getElementById("reviewScreen").style.display  = "none";
   document.getElementById("resultScreen").style.display  = "block";
@@ -2379,7 +2395,8 @@ function sendToOptimizer() {
 }
 
 function downloadResumeAsText() {
-  if (!generatedResume) return;
+  if (!generatedResume) { generatedResume = sessionStorage.getItem("builderResume") || ""; }
+  if (!generatedResume) { alert("No resume to download. Please build your resume first."); return; }
   var blob = new Blob([generatedResume], { type: "text/plain" });
   var url  = URL.createObjectURL(blob);
   var a    = document.createElement("a");
