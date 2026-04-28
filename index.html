@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Resume Optimizer</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <title>Resume Optimizer — Build or Optimize Your Resume with AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -17,1306 +17,329 @@
       --accent: #2e5c3e;
       --accent-light: #eaf2ec;
       --accent-border: #c2dbc8;
-      --danger: #c0392b;
-      --danger-light: #fdf0ee;
-      --danger-border: #f0c5be;
-      --success: #2e5c3e;
-      --warn: #8a5c00;
-      --warn-light: #fdf6e3;
-      --warn-border: #f0dfa0;
-      --radius: 10px;
-      --syn-focus: #1a7a3a;
-      --syn-alt: #1a5fa8;
-      --syn-selected: #c0392b;
+      --amber: #8a5c00;
+      --amber-light: #fdf6e3;
+      --amber-border: #f0dfa0;
+      --radius: 12px;
     }
+
+    html, body { height: 100%; }
 
     body {
       font-family: 'DM Sans', sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      padding: 40px 20px 60px;
-    }
-
-    .container { max-width: 820px; margin: 0 auto; }
-    header { margin-bottom: 36px; }
-
-    header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 36px;
-      font-weight: 400;
-      letter-spacing: -0.5px;
-      color: var(--text);
-      margin-bottom: 6px;
-    }
-
-    header p { font-size: 15px; color: var(--muted); }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px;
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 160px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--text);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px 14px;
-      resize: vertical;
-      transition: border-color 0.15s;
-      outline: none;
-    }
-
-    textarea:focus { border-color: var(--accent); }
-
-    input[type="text"] {
-      width: 100%;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      color: var(--text);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-
-    input[type="text"]:focus { border-color: var(--accent); }
-
-    .fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 640px) {
-      .fields { grid-template-columns: 1fr; }
-      header h1 { font-size: 28px; }
-      .actions { flex-direction: column; align-items: stretch; }
-    }
-
-    .pay-row {
       display: flex;
-      align-items: flex-end;
-      gap: 10px;
-      margin-top: 20px;
+      flex-direction: column;
     }
 
-    .pay-row .pay-field { flex: 0 0 280px; }
-
-    .pay-row .pay-hint {
-      font-size: 12px;
-      color: var(--muted);
-      padding-bottom: 11px;
-      white-space: nowrap;
-    }
-
-    .pay-extracted {
-      font-size: 11px;
-      color: var(--accent);
-      margin-top: 5px;
-      display: none;
-    }
-
-    .actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .btn-primary {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: #fff;
-      background: var(--accent);
-      border: none;
-      border-radius: 6px;
-      padding: 11px 22px;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      white-space: nowrap;
-    }
-
-    .btn-primary:hover { opacity: 0.88; }
-    .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .btn-secondary {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--accent);
-      background: var(--surface);
-      border: 1px solid var(--accent-border);
-      border-radius: 6px;
-      padding: 10px 18px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-      white-space: nowrap;
-    }
-
-    .btn-secondary:hover { background: var(--accent-light); }
-    .btn-secondary:active { transform: scale(0.98); }
-    .btn-secondary:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .status-text { font-size: 13px; color: var(--muted); }
-    .status-text.error { color: var(--danger); }
-    .status-text.success { color: var(--success); }
-
-    /* Card header */
-    .card-header {
+    /* Nav */
+    nav {
+      padding: 20px 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
     }
 
-    .card-header h2 {
+    .nav-logo {
       font-family: 'DM Serif Display', serif;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 400;
-    }
-
-    .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-
-    .btn-download {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--accent);
-      background: var(--accent-light);
-      border: 1px solid var(--accent-border);
-      border-radius: 5px;
-      padding: 7px 14px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-
-    .btn-download:hover { background: #d6ebda; }
-    .btn-download:active { transform: scale(0.97); }
-
-    .btn-synonym {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--syn-alt);
-      background: #e8f0fb;
-      border: 1px solid #b8d0f0;
-      border-radius: 5px;
-      padding: 7px 14px;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-    }
-
-    .btn-synonym:hover { background: #d0e4f8; }
-    .btn-synonym:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .btn-finalize {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: #fff;
-      background: var(--accent);
-      border: none;
-      border-radius: 5px;
-      padding: 7px 16px;
-      cursor: pointer;
-      transition: opacity 0.15s;
-      white-space: nowrap;
-      display: none;
-    }
-
-    .btn-finalize:hover { opacity: 0.85; }
-
-    .btn-revert {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--danger);
-      background: var(--danger-light);
-      border: 1px solid var(--danger-border);
-      border-radius: 5px;
-      padding: 7px 14px;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-      display: none;
-    }
-
-    .btn-revert:hover { background: #f8dbd8; }
-
-    /* Output text */
-    #outputSection, #coverSection { display: none; }
-
-    .text-output {
-      font-size: 14px;
-      line-height: 1.8;
       color: var(--text);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px;
-      min-height: 200px;
-      white-space: pre-wrap;
-    }
-
-    /* Synonym swap view */
-    .syn-output {
-      font-size: 14px;
-      line-height: 2.1;
-      color: var(--text);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px;
-      min-height: 200px;
-    }
-
-    .syn-output .plain-line { display: block; }
-    .syn-output .syn-sentence { display: inline; }
-
-    .focus-word {
-      color: var(--syn-focus);
-      font-weight: 500;
-      cursor: default;
-    }
-
-    .focus-word::before { content: '"'; }
-    .focus-word::after { content: '"'; }
-
-    .syn-bracket { color: var(--muted); font-size: 13px; }
-
-    .syn-alt-word {
-      color: var(--syn-alt);
-      cursor: pointer;
-      font-size: 13px;
-      text-decoration: underline;
-      text-decoration-style: dotted;
-      transition: color 0.1s;
-    }
-
-    .syn-alt-word:hover { color: #0f3d6e; }
-
-    .syn-alt-word.selected {
-      color: var(--syn-selected);
-      font-weight: 500;
       text-decoration: none;
     }
 
-    .btn-change {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      font-weight: 500;
-      color: #fff;
-      background: var(--syn-selected);
-      border: none;
-      border-radius: 4px;
-      padding: 3px 8px;
-      cursor: pointer;
-      margin-left: 5px;
-      vertical-align: middle;
-      transition: opacity 0.1s;
+    .nav-logo span { color: var(--accent); font-style: italic; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 72px 24px 48px;
+      max-width: 680px;
+      margin: 0 auto;
     }
 
-    .btn-change:hover { opacity: 0.85; }
-
-    /* Rephrase */
-    .btn-rephrase {
-      font-family: 'DM Sans', sans-serif;
+    .hero-eyebrow {
+      display: inline-block;
       font-size: 12px;
       font-weight: 500;
-      color: #7c3aed;
-      background: #f3f0ff;
-      border: 1px solid #c4b5fd;
-      border-radius: 5px;
-      padding: 7px 14px;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      border-radius: 20px;
+      padding: 4px 14px;
+      margin-bottom: 20px;
     }
 
-    .btn-rephrase:hover { background: #ede9fe; }
-    .btn-rephrase:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    .rephrase-output {
-      font-size: 14px;
-      line-height: 1.9;
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 400;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
       color: var(--text);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px;
-      min-height: 200px;
+      margin-bottom: 18px;
     }
 
-    .rephrase-line { display: block; margin-bottom: 2px; position: relative; }
-
-    .rephrase-line:hover .rephrase-trigger { opacity: 1; }
-
-    .rephrase-trigger {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 500;
-      color: #7c3aed;
-      background: #f3f0ff;
-      border: 1px solid #c4b5fd;
-      border-radius: 3px;
-      padding: 1px 6px;
-      cursor: pointer;
-      margin-left: 6px;
-      vertical-align: middle;
-      opacity: 0;
-      transition: opacity 0.15s;
-      white-space: nowrap;
+    .hero h1 em {
+      font-style: italic;
+      color: var(--accent);
     }
 
-    .rephrase-trigger.loading { opacity: 1; color: #a78bfa; }
+    .hero p {
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 48px;
+    }
 
-    .rephrase-options {
-      display: block;
-      margin: 6px 0 10px 0;
+    /* Choice cards */
+    .choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    @media (max-width: 600px) {
+      .choices { grid-template-columns: 1fr; }
+      nav { padding: 16px 20px; }
+    }
+
+    .choice-card {
       background: var(--surface);
-      border: 1px solid #c4b5fd;
-      border-radius: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      text-decoration: none;
+      display: block;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+      position: relative;
       overflow: hidden;
     }
 
-    .rephrase-option {
-      display: block;
-      padding: 10px 14px;
-      border-bottom: 1px solid #ede9fe;
-      cursor: pointer;
-      transition: background 0.12s;
+    .choice-card:hover {
+      border-color: var(--accent-border);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(46, 92, 62, 0.08);
     }
 
-    .rephrase-option:last-child { border-bottom: none; }
-    .rephrase-option:hover { background: #f3f0ff; }
-
-    .rephrase-option.selected {
-      background: #ede9fe;
+    .choice-card.amber:hover {
+      border-color: var(--amber-border);
+      box-shadow: 0 8px 24px rgba(138, 92, 0, 0.08);
     }
 
-    .rephrase-option-label {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #7c3aed;
-      margin-bottom: 3px;
+    .choice-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 18px;
     }
 
-    .rephrase-option-text {
-      font-size: 13px;
+    .icon-green { background: var(--accent-light); }
+    .icon-amber { background: var(--amber-light); }
+
+    .choice-card h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      font-weight: 400;
       color: var(--text);
-      line-height: 1.55;
+      margin-bottom: 10px;
+      line-height: 1.2;
     }
 
-    .rephrase-original {
-      display: block;
-      padding: 10px 14px;
-      border-bottom: 1px solid #ede9fe;
-      cursor: pointer;
-      transition: background 0.12s;
-    }
-
-    .rephrase-original:hover { background: #f9f9f7; }
-
-    .rephrase-original-label {
-      font-size: 10px;
-      font-weight: 500;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+    .choice-card p {
+      font-size: 14px;
+      line-height: 1.65;
       color: var(--muted);
-      margin-bottom: 3px;
+      margin-bottom: 24px;
     }
 
-    .btn-rephrase-confirm {
-      font-family: 'DM Sans', sans-serif;
+    .choice-tag {
+      display: inline-block;
       font-size: 11px;
       font-weight: 500;
-      color: #fff;
-      background: #7c3aed;
-      border: none;
-      border-radius: 4px;
-      padding: 3px 8px;
-      cursor: pointer;
-      margin-left: 8px;
-      vertical-align: middle;
-      transition: opacity 0.1s;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-right: 6px;
+      margin-bottom: 6px;
     }
 
-    .btn-rephrase-confirm:hover { opacity: 0.85; }
+    .tag-green { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-border); }
+    .tag-amber { background: var(--amber-light); color: var(--amber); border: 1px solid var(--amber-border); }
 
-    /* Fit Analysis */
-    #fitSection { display: none; }
-
-    .score-row { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-
-    .score-circle {
-      width: 64px; height: 64px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 18px; font-weight: 500;
+    .choice-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--accent);
     }
 
-    .score-strong { background: var(--accent-light); color: var(--accent); border: 2px solid var(--accent-border); }
-    .score-partial { background: var(--warn-light); color: var(--warn); border: 2px solid var(--warn-border); }
-    .score-weak { background: var(--danger-light); color: var(--danger); border: 2px solid var(--danger-border); }
-    .score-meta { flex: 1; }
+    .choice-card.amber .choice-cta { color: var(--amber); }
 
-    .verdict-badge {
-      display: inline-block; font-size: 11px; font-weight: 500;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 20px; margin-bottom: 6px;
+    .choice-cta-arrow {
+      transition: transform 0.15s;
     }
 
-    .verdict-strong { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent-border); }
-    .verdict-partial { background: var(--warn-light); color: var(--warn); border: 1px solid var(--warn-border); }
-    .verdict-weak { background: var(--danger-light); color: var(--danger); border: 1px solid var(--danger-border); }
+    .choice-card:hover .choice-cta-arrow { transform: translateX(3px); }
 
-    .fit-headline { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.4; }
-    .fit-section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; margin-top: 20px; }
-    .fit-items { display: flex; flex-direction: column; gap: 8px; }
-    .fit-item { border-radius: 6px; padding: 12px 14px; border-left: 3px solid transparent; }
-    .fit-item.positive { background: var(--accent-light); border-left-color: var(--accent); }
-    .fit-item.negative { background: var(--danger-light); border-left-color: var(--danger); }
-    .fit-item-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-    .fit-item-detail { font-size: 13px; color: var(--muted); line-height: 1.55; }
-    .fit-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
-    .fit-summary { font-size: 14px; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
-    .fit-directions { font-size: 13px; line-height: 1.65; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
-    .fit-comp { font-size: 13px; line-height: 1.6; color: var(--muted); margin-top: 10px; }
-
-    .spinner {
-      display: inline-block; width: 14px; height: 14px;
-      border: 2px solid #c2dbc8; border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 0.7s linear infinite;
-      vertical-align: middle; margin-right: 6px;
+    /* Who it's for section */
+    .for-section {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
     }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .for-section h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .for-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .for-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .for-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .for-item-icon { font-size: 24px; margin-bottom: 8px; }
+
+    .for-item-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .for-item-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: auto;
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
-<div class="container">
 
-  <header>
-    <h1>Resume Optimizer</h1>
-    <p>Paste your resume and a job description — optimize, analyze your fit, or generate a cover letter.</p>
-  </header>
+<nav>
+  <a class="nav-logo" href="/">Resume<span>AI</span></a>
+</nav>
 
-  <!-- Input card -->
-  <div class="card">
-    <div class="fields" style="margin-bottom: 20px;">
-      <div>
-        <label>Your Resume</label>
-        <textarea id="resume" placeholder="Paste your current resume here..."></textarea>
-      </div>
-      <div>
-        <label>Job Description</label>
-        <textarea id="jobDesc" placeholder="Paste the job description here..." oninput="schedulePayExtract()"></textarea>
-      </div>
+<div class="hero">
+  <span class="hero-eyebrow">AI-Powered Career Tools</span>
+  <h1>Your resume,<br><em>built for the job</em></h1>
+  <p>Whether you're starting from scratch or polishing an existing resume, our AI tools help you land more interviews — no writing experience needed.</p>
+</div>
+
+<div class="choices">
+
+  <a class="choice-card" href="/builder.html">
+    <div class="choice-icon icon-amber">&#9997;</div>
+    <h2>Build My Resume</h2>
+    <p>Starting from zero? Answer a few simple questions and we'll write a professional resume for you — no blank page, no guessing.</p>
+    <div>
+      <span class="choice-tag tag-amber">First resume</span>
+      <span class="choice-tag tag-amber">No experience needed</span>
+      <span class="choice-tag tag-amber">ESL friendly</span>
     </div>
+    <div class="choice-cta">Get started <span class="choice-cta-arrow">&#8594;</span></div>
+  </a>
 
-    <div class="pay-row">
-      <div class="pay-field">
-        <label>Pay Target <span style="font-size:11px;text-transform:none;letter-spacing:0;font-weight:400;">— optional</span></label>
-        <input type="text" id="payTarget" placeholder="e.g. $95,000 or $85K–$100K" />
-        <div class="pay-extracted" id="payExtracted"></div>
-      </div>
-      <div class="pay-hint">Used for fit analysis compensation comparison</div>
+  <a class="choice-card" href="/optimizer">
+    <div class="choice-icon icon-green">&#9889;</div>
+    <h2>Optimize My Resume</h2>
+    <p>Already have a resume? Paste it in along with the job description and our AI will tailor it to match — keywords, tone, and all.</p>
+    <div>
+      <span class="choice-tag tag-green">ATS optimization</span>
+      <span class="choice-tag tag-green">Fit analysis</span>
+      <span class="choice-tag tag-green">Cover letter</span>
     </div>
-
-    <div class="actions">
-      <button class="btn-secondary"  id="fitBtn"      onclick="runFitAnalysis()">Am I a Good Fit?</button>
-      <button class="btn-primary"    id="optimizeBtn" onclick="optimizeResume()">Optimize Resume</button>
-      <button class="btn-secondary"  id="coverBtn"    onclick="generateCoverLetter()">Generate Cover Letter</button>
-      <span class="status-text" id="status"></span>
-    </div>
-    <p style="font-size:12px;color:var(--muted);margin-top:10px;">Not sure if this role is right for you? Try <strong style="color:var(--text);">Am I a Good Fit?</strong> first — then optimize if it looks promising.</p>
-  </div>
-
-  <!-- Optimized resume output -->
-  <div id="outputSection">
-    <div class="card">
-      <div class="card-header">
-        <h2>Optimized Resume</h2>
-        <div class="btn-group">
-          <button class="btn-synonym"  id="resumeSynBtn"      onclick="toggleSynonymView('resume')">&#10031; Synonym Swap</button>
-          <button class="btn-rephrase" id="resumeRephraseBtn" onclick="toggleRephraseView('resume')">&#9998; Rephrase</button>
-          <button class="btn-finalize" id="resumeFinalizeBtn" onclick="finalizeSynonyms('resume')">&#10003; Finalize</button>
-          <button class="btn-revert"   id="resumeRevertBtn"   onclick="revertToOriginal('resume')">&#8635; Revert to Original</button>
-          <button class="btn-download" onclick="downloadTxt('resume')">&#8595; TXT</button>
-          <button class="btn-download" onclick="downloadPdf('resume')">&#8595; PDF</button>
-          <button class="btn-download" id="wordBtn" onclick="downloadDocx('resume')">&#8595; Word</button>
-        </div>
-      </div>
-      <div id="resumeOutputWrap">
-        <div id="output" class="text-output"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Fit analysis -->
-  <div id="fitSection">
-    <div class="card">
-      <div class="card-header">
-        <h2>Fit Analysis</h2>
-        <div class="btn-group">
-          <button class="btn-download" onclick="downloadFitPdf()">&#8595; PDF</button>
-        </div>
-      </div>
-      <div id="fitContent"></div>
-    </div>
-  </div>
-
-  <!-- Cover letter output -->
-  <div id="coverSection">
-    <div class="card">
-      <div class="card-header">
-        <h2>Cover Letter</h2>
-        <div class="btn-group">
-          <button class="btn-synonym"  id="coverSynBtn"      onclick="toggleSynonymView('cover')">&#10031; Synonym Swap</button>
-          <button class="btn-rephrase" id="coverRephraseBtn" onclick="toggleRephraseView('cover')">&#9998; Rephrase</button>
-          <button class="btn-finalize" id="coverFinalizeBtn" onclick="finalizeSynonyms('cover')">&#10003; Finalize</button>
-          <button class="btn-revert"   id="coverRevertBtn"   onclick="revertToOriginal('cover')">&#8635; Revert to Original</button>
-          <button class="btn-download" onclick="downloadTxt('cover')">&#8595; TXT</button>
-          <button class="btn-download" onclick="downloadPdf('cover')">&#8595; PDF</button>
-          <button class="btn-download" id="coverWordBtn" onclick="downloadDocx('cover')">&#8595; Word</button>
-        </div>
-      </div>
-      <div id="coverOutputWrap">
-        <div id="coverOutput" class="text-output"></div>
-      </div>
-    </div>
-  </div>
+    <div class="choice-cta">Upload resume <span class="choice-cta-arrow">&#8594;</span></div>
+  </a>
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+<div class="for-section">
+  <h3>Built for every background</h3>
+  <div class="for-grid">
+    <div class="for-item">
+      <div class="for-item-icon">&#127979;</div>
+      <div class="for-item-label">High School Students</div>
+      <div class="for-item-desc">First jobs, clubs, volunteer work</div>
+    </div>
+    <div class="for-item">
+      <div class="for-item-icon">&#127979;</div>
+      <div class="for-item-label">College Students</div>
+      <div class="for-item-desc">Internships, projects, career start</div>
+    </div>
+    <div class="for-item">
+      <div class="for-item-icon">&#127859;</div>
+      <div class="for-item-label">Service Workers</div>
+      <div class="for-item-desc">Restaurant, retail, hospitality</div>
+    </div>
+    <div class="for-item">
+      <div class="for-item-icon">&#127760;</div>
+      <div class="for-item-label">Foreign-Born</div>
+      <div class="for-item-desc">ESL support, credential help</div>
+    </div>
+    <div class="for-item">
+      <div class="for-item-icon">&#128188;</div>
+      <div class="for-item-label">Office Professionals</div>
+      <div class="for-item-desc">Corporate, admin, tech roles</div>
+    </div>
+    <div class="for-item">
+      <div class="for-item-icon">&#128260;</div>
+      <div class="for-item-label">Career Changers</div>
+      <div class="for-item-desc">Pivoting to a new field</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  &copy; 2026 ResumeAI &mdash; Powered by Claude AI
+</footer>
 
-<script>
-var optimizedText = "";
-var coverText     = "";
-var fitData       = null;
-var payExtractTimer = null;
-
-// Per-output synonym state
-var synState = {
-  resume: { active: false, data: null, currentText: "", originalText: "" },
-  cover:  { active: false, data: null, currentText: "", originalText: "" }
-};
-
-// Per-output rephrase state
-var rephraseState = {
-  resume: { active: false, originalText: "" },
-  cover:  { active: false, originalText: "" }
-};
-
-// ── Auto-load resume from builder ────────────────────────────────────────────
-(function() {
-  var params = new URLSearchParams(window.location.search);
-  if (params.get("from") === "builder") {
-    var built = sessionStorage.getItem("builtResume");
-    if (built) {
-      document.getElementById("resume").value = built;
-      sessionStorage.removeItem("builtResume");
-      var notice = document.createElement("div");
-      notice.style.cssText = "font-size:13px;color:var(--success);margin-bottom:12px;padding:10px 14px;background:var(--accent-light);border:1px solid var(--accent-border);border-radius:6px;";
-      notice.innerHTML = "&#10003; Your resume was loaded from the builder. Add a job description and click <strong>Optimize Resume</strong>.";
-      document.querySelector(".card").insertBefore(notice, document.querySelector(".fields"));
-    }
-  }
-})();
-
-// ── Auto-extract pay ──────────────────────────────────────────────────────────
-function schedulePayExtract() {
-  clearTimeout(payExtractTimer);
-  payExtractTimer = setTimeout(function() {
-    var jd = document.getElementById("jobDesc").value.trim();
-    if (jd.length < 100) return;
-    extractPay(jd);
-  }, 1500);
-}
-
-async function extractPay(jd) {
-  try {
-    var r = await fetch("/.netlify/functions/extract-pay", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jobDescription: jd })
-    });
-    var d = await r.json();
-    var hint = document.getElementById("payExtracted");
-    var pf   = document.getElementById("payTarget");
-    if (d.pay && !pf.value.trim()) {
-      pf.value = d.pay;
-      hint.innerText = "Pay range detected from job description";
-      hint.style.display = "block";
-    }
-  } catch(e) {}
-}
-
-// ── Optimize ──────────────────────────────────────────────────────────────────
-async function optimizeResume() {
-  var resume  = document.getElementById("resume").value.trim();
-  var jobDesc = document.getElementById("jobDesc").value.trim();
-  var btn     = document.getElementById("optimizeBtn");
-  if (!resume || !jobDesc) { setStatus("error","Please fill in both fields."); return; }
-
-  btn.disabled = true;
-  setStatus("", '<span class="spinner"></span>Optimizing...');
-  document.getElementById("outputSection").style.display = "none";
-  optimizedText = "";
-  exitSynonymMode("resume");
-  showRevertBtn("resume", false);
-
-  try {
-    var r = await fetch("/.netlify/functions/optimize", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resume: resume, jobDescription: jobDesc })
-    });
-    if (!r.ok) throw new Error("Server returned " + r.status);
-    var d = await r.json();
-    if (d.result) {
-      optimizedText = d.result;
-      synState.resume.currentText = optimizedText;
-      synState.resume.originalText = "";
-      setPlainView("resume", optimizedText);
-      document.getElementById("outputSection").style.display = "block";
-      document.getElementById("outputSection").scrollIntoView({ behavior:"smooth", block:"start" });
-      setStatus("success", "Done! Review and download below.");
-    } else { throw new Error(d.error || "No result returned"); }
-  } catch(err) { setStatus("error", "Error: " + err.message); }
-  finally { btn.disabled = false; }
-}
-
-// ── Fit Analysis ──────────────────────────────────────────────────────────────
-async function runFitAnalysis() {
-  var resume    = document.getElementById("resume").value.trim();
-  var jobDesc   = document.getElementById("jobDesc").value.trim();
-  var payTarget = document.getElementById("payTarget").value.trim();
-  var btn       = document.getElementById("fitBtn");
-  if (!resume || !jobDesc) { setStatus("error","Please fill in both fields."); return; }
-
-  btn.disabled = true;
-  setStatus("", '<span class="spinner"></span>Analyzing fit...');
-  document.getElementById("fitSection").style.display = "none";
-  fitData = null;
-
-  try {
-    var r = await fetch("/.netlify/functions/fit-analysis", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resume: resume, jobDescription: jobDesc, payTarget: payTarget })
-    });
-    if (!r.ok) throw new Error("Server returned " + r.status);
-    var d = await r.json();
-    if (d.analysis) {
-      fitData = d.analysis;
-      renderFitAnalysis(fitData);
-      document.getElementById("fitSection").style.display = "block";
-      document.getElementById("fitSection").scrollIntoView({ behavior:"smooth", block:"start" });
-      setStatus("success", "Analysis complete.");
-    } else { throw new Error(d.error || "No analysis returned"); }
-  } catch(err) { setStatus("error", "Error: " + err.message); }
-  finally { btn.disabled = false; }
-}
-
-function renderFitAnalysis(a) {
-  var score   = typeof a.score === "number" ? a.score : 0;
-  var verdict = a.verdict || "partial";
-  var vLabel  = { strong:"Strong Fit", partial:"Partial Fit", weak:"Weak Fit" }[verdict] || "Partial Fit";
-
-  var alignHtml = (a.alignment||[]).map(function(item) {
-    return '<div class="fit-item positive"><div class="fit-item-title">'+esc(item.title)+'</div><div class="fit-item-detail">'+esc(item.detail)+'</div></div>';
-  }).join("");
-  var gapsHtml = (a.gaps||[]).map(function(item) {
-    return '<div class="fit-item negative"><div class="fit-item-title">'+esc(item.title)+'</div><div class="fit-item-detail">'+esc(item.detail)+'</div></div>';
-  }).join("");
-  var compHtml = a.compensation ? '<p class="fit-comp">'+esc(a.compensation)+'</p>' : "";
-
-  document.getElementById("fitContent").innerHTML =
-    '<div class="score-row"><div class="score-circle score-'+verdict+'">'+score+'%</div>' +
-    '<div class="score-meta"><span class="verdict-badge verdict-'+verdict+'">'+vLabel+'</span>' +
-    '<div class="fit-headline">'+esc(a.headline)+'</div></div></div>' +
-    '<p class="fit-section-label">Where alignment exists</p><div class="fit-items">'+alignHtml+'</div>' +
-    '<p class="fit-section-label">Critical gaps to address</p><div class="fit-items">'+gapsHtml+'</div>' +
-    compHtml +
-    '<hr class="fit-divider"/><p class="fit-summary">'+esc(a.summary)+'</p>' +
-    '<div class="fit-directions">'+esc(a.directions)+'</div>';
-}
-
-// ── Cover Letter ──────────────────────────────────────────────────────────────
-async function generateCoverLetter() {
-  var resume  = document.getElementById("resume").value.trim();
-  var jobDesc = document.getElementById("jobDesc").value.trim();
-  var btn     = document.getElementById("coverBtn");
-  if (!resume || !jobDesc) { setStatus("error","Please fill in both fields."); return; }
-
-  btn.disabled = true;
-  setStatus("", '<span class="spinner"></span>Writing cover letter...');
-  document.getElementById("coverSection").style.display = "none";
-  coverText = "";
-  exitSynonymMode("cover");
-  showRevertBtn("cover", false);
-
-  try {
-    var r = await fetch("/.netlify/functions/cover-letter", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resume: resume, jobDescription: jobDesc })
-    });
-    if (!r.ok) throw new Error("Server returned " + r.status);
-    var d = await r.json();
-    if (d.result) {
-      coverText = d.result;
-      synState.cover.currentText = coverText;
-      synState.cover.originalText = "";
-      setPlainView("cover", coverText);
-      document.getElementById("coverSection").style.display = "block";
-      document.getElementById("coverSection").scrollIntoView({ behavior:"smooth", block:"start" });
-      setStatus("success", "Cover letter ready.");
-    } else { throw new Error(d.error || "No result returned"); }
-  } catch(err) { setStatus("error", "Error: " + err.message); }
-  finally { btn.disabled = false; }
-}
-
-// ── Synonym Swap ──────────────────────────────────────────────────────────────
-async function toggleSynonymView(which) {
-  var state = synState[which];
-  var synBtnId = which === "resume" ? "resumeSynBtn" : "coverSynBtn";
-  var btn = document.getElementById(synBtnId);
-
-  // If already active — just toggle off (without finalizing)
-  if (state.active) {
-    exitSynonymMode(which);
-    return;
-  }
-
-  // Enter synonym mode — store original for potential revert, then fetch data
-  if (!state.originalText) { state.originalText = state.currentText; }
-  btn.disabled = true;
-  btn.innerText = "Analyzing...";
-
-  try {
-    var r = await fetch("/.netlify/functions/synonym-swap", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: state.currentText })
-    });
-    if (!r.ok) throw new Error("Server returned " + r.status);
-    var d = await r.json();
-    if (d.sentences) {
-      state.data   = d.sentences;
-      state.active = true;
-      renderSynonymView(which);
-      showFinalizeBtn(which, true);
-      btn.innerText = "\u2715 Exit Synonym Swap";
-    } else { throw new Error(d.error || "No synonym data returned"); }
-  } catch(err) {
-    alert("Synonym Swap error: " + err.message);
-    btn.innerText = "\u2731 Synonym Swap";
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-// Finalize — commit all changes, exit synonym mode, show revert option
-function finalizeSynonyms(which) {
-  var state = synState[which];
-  if (!state.active) return;
-
-  // Sync master text store
-  if (which === "resume") { optimizedText = state.currentText; }
-  else                    { coverText     = state.currentText; }
-
-  exitSynonymMode(which);
-  showRevertBtn(which, true);
-  setStatus("success", "Changes finalized. Use ‘Revert to Original’ if you want to start over.");
-}
-
-// Revert — restore the text to what it was before any synonym or rephrase edits
-function revertToOriginal(which) {
-  var state  = synState[which];
-  var rstate = rephraseState[which];
-  var original = state.originalText || rstate.originalText;
-  if (!original) return;
-
-  state.currentText  = original;
-  state.originalText = "";
-  rstate.originalText = "";
-
-  if (rstate.active) {
-    rstate.active = false;
-    var rBtnId = which === "resume" ? "resumeRephraseBtn" : "coverRephraseBtn";
-    var synBtn = document.getElementById(which === "resume" ? "resumeSynBtn" : "coverSynBtn");
-    document.getElementById(rBtnId).innerText = "\u9998 Rephrase";
-    synBtn.disabled = false;
-  }
-
-  if (which === "resume") { optimizedText = state.currentText; }
-  else                    { coverText     = state.currentText; }
-
-  setPlainView(which, state.currentText);
-  showRevertBtn(which, false);
-  setStatus("success", "Reverted to original. You can run Synonym Swap or Rephrase again.");
-}
-
-// Shared exit helper — does NOT wipe currentText so downloads stay correct
-function exitSynonymMode(which) {
-  var state    = synState[which];
-  var synBtnId = which === "resume" ? "resumeSynBtn" : "coverSynBtn";
-
-  state.active = false;
-  state.data   = null;
-  setPlainView(which, state.currentText);
-  showFinalizeBtn(which, false);
-  document.getElementById(synBtnId).innerText = "\u2731 Synonym Swap";
-}
-
-// Render the annotated synonym view
-function renderSynonymView(which) {
-  var state  = synState[which];
-  var wrapId = which === "resume" ? "resumeOutputWrap" : "coverOutputWrap";
-  var wrap   = document.getElementById(wrapId);
-
-  // Build lookup: sentence text -> adjective array
-  var sentenceMap = {};
-  (state.data || []).forEach(function(item) {
-    sentenceMap[item.sentence.trim()] = item.adjectives;
-  });
-
-  var lines = state.currentText.split("\n");
-  var html  = '<div class="syn-output">';
-
-  lines.forEach(function(line) {
-    if (!line.trim()) { html += '<span class="plain-line">&nbsp;</span>'; return; }
-
-    var sentences = line.match(/[^.!?]+[.!?]?/g) || [line];
-    var lineHtml  = "";
-
-    sentences.forEach(function(sentence) {
-      var trimmed = sentence.trim();
-      if (!trimmed) return;
-      var adjData = sentenceMap[trimmed];
-
-      if (!adjData || adjData.length === 0) {
-        lineHtml += esc(sentence);
-        return;
-      }
-
-      // Annotate each adjective in the sentence
-      var annotated = sentence;
-      adjData.forEach(function(adj) {
-        var synId  = "syn_" + which + "_" + Math.random().toString(36).substr(2,9);
-        var synHtml = buildSynHtml(adj.word, adj.synonyms, synId, which);
-        var re      = new RegExp("\\b" + escRegex(adj.word) + "\\b");
-        annotated   = annotated.replace(re, synHtml);
-      });
-
-      lineHtml += '<span class="syn-sentence">' + annotated + '</span>';
-    });
-
-    html += '<span class="plain-line">' + lineHtml + '</span>';
-  });
-
-  html += '</div>';
-  wrap.innerHTML = html;
-}
-
-function buildSynHtml(word, synonyms, synId, which) {
-  var synsHtml = synonyms.map(function(syn) {
-    return '<span class="syn-alt-word" onclick="selectSynonym(this,\''+synId+'\',\''+esc(syn)+'\',\''+which+'\')">' + esc(syn) + '</span>';
-  }).join('<span class="syn-bracket">/</span>');
-
-  return '<span class="focus-word" id="fw_'+synId+'" data-which="'+which+'">'+esc(word)+'</span>' +
-         '<span class="syn-bracket"> [</span>'+synsHtml+'<span class="syn-bracket" id="cb_'+synId+'">]</span>';
-}
-
-// User clicks an alternative word
-function selectSynonym(el, synId, syn, which) {
-  var bracket = document.getElementById("cb_" + synId);
-  if (!bracket) return;
-  var group = bracket.parentElement;
-
-  // Deselect others in this group
-  group.querySelectorAll(".syn-alt-word").forEach(function(a) { a.classList.remove("selected"); });
-
-  // Remove existing Change button
-  var existing = group.querySelector(".btn-change");
-  if (existing) existing.remove();
-
-  // Select this word
-  el.classList.add("selected");
-
-  // Add Change? button
-  var changeBtn = document.createElement("button");
-  changeBtn.className = "btn-change";
-  changeBtn.innerText = "Change?";
-  changeBtn.setAttribute("data-synid", synId);
-  changeBtn.setAttribute("data-newword", syn);
-  changeBtn.setAttribute("data-which", which);
-  changeBtn.onclick = function() { confirmChange(synId, syn, which); };
-  bracket.insertAdjacentElement("afterend", changeBtn);
-}
-
-// User confirms a word swap — stay in synonym mode, re-render in place
-function confirmChange(synId, newWord, which) {
-  var state    = synState[which];
-  var focusEl  = document.getElementById("fw_" + synId);
-  if (!focusEl) return;
-
-  var oldWord = focusEl.innerText; // CSS ::before/::after add quotes — innerText strips them
-
-  // Update running text
-  var re = new RegExp("\\b" + escRegex(oldWord) + "\\b");
-  state.currentText = state.currentText.replace(re, newWord);
-
-  // Update synonym data so the new word becomes the focus word in future renders
-  (state.data || []).forEach(function(item) {
-    item.adjectives.forEach(function(adj) {
-      if (adj.word === oldWord) {
-        // Replace old word in the stored sentence text too
-        item.sentence = item.sentence.replace(new RegExp("\\b" + escRegex(oldWord) + "\\b"), newWord);
-        adj.word = newWord;
-        // Remove the chosen synonym from the alternatives list, add old word in its place
-        adj.synonyms = adj.synonyms.filter(function(s) { return s !== newWord; });
-        if (!adj.synonyms.includes(oldWord)) { adj.synonyms.unshift(oldWord); }
-        if (adj.synonyms.length > 5) { adj.synonyms = adj.synonyms.slice(0, 5); }
-      }
-    });
-  });
-
-  // Re-render synonym view in place — no mode exit, no new API call
-  renderSynonymView(which);
-}
-
-
-// ── Rephrase ──────────────────────────────────────────────────────────────────
-function toggleRephraseView(which) {
-  var state  = rephraseState[which];
-  var btnId  = which === "resume" ? "resumeRephraseBtn" : "coverRephraseBtn";
-  var btn    = document.getElementById(btnId);
-  var synBtn = document.getElementById(which === "resume" ? "resumeSynBtn" : "coverSynBtn");
-
-  if (state.active) { exitRephraseMode(which); return; }
-
-  if (synState[which].active) { exitSynonymMode(which); }
-
-  if (!state.originalText) { state.originalText = synState[which].currentText; }
-  state.active = true;
-  btn.innerText = "\u2715 Exit Rephrase";
-  synBtn.disabled = true;
-  showFinalizeBtn(which, true);
-  renderRephraseView(which);
-}
-
-function exitRephraseMode(which) {
-  var state  = rephraseState[which];
-  var btnId  = which === "resume" ? "resumeRephraseBtn" : "coverRephraseBtn";
-  var synBtn = document.getElementById(which === "resume" ? "resumeSynBtn" : "coverSynBtn");
-  state.active = false;
-  setPlainView(which, synState[which].currentText);
-  showFinalizeBtn(which, false);
-  document.getElementById(btnId).innerText = "\u9998 Rephrase";
-  synBtn.disabled = false;
-}
-
-function renderRephraseView(which) {
-  var text   = synState[which].currentText;
-  var wrapId = which === "resume" ? "resumeOutputWrap" : "coverOutputWrap";
-  var wrap   = document.getElementById(wrapId);
-  var lines  = text.split("\n");
-  var html   = '<div class="rephrase-output">';
-
-  lines.forEach(function(line, lineIdx) {
-    if (!line.trim()) { html += '<span class="rephrase-line">&nbsp;</span>'; return; }
-    var sentences = line.match(/[^.!?]+[.!?]?\s*/g) || [line];
-    var lineHtml  = "";
-    sentences.forEach(function(sentence, senIdx) {
-      if (!sentence.trim()) return;
-      var sid = "rp_" + which + "_" + lineIdx + "_" + senIdx;
-      lineHtml +=
-        '<span class="rephrase-sentence" id="rs_' + sid + '">' +
-          esc(sentence) +
-          '<span class="rephrase-trigger" id="rt_' + sid + '" onclick="triggerRephrase(\'' + sid + '\',\'' + which + '\')">\u9998 rephrase</span>' +
-        '</span>';
-    });
-    html += '<span class="rephrase-line">' + lineHtml + '</span>';
-  });
-
-  html += '</div>';
-  wrap.innerHTML = html;
-}
-
-async function triggerRephrase(sid, which) {
-  var triggerEl  = document.getElementById("rt_" + sid);
-  var sentenceEl = document.getElementById("rs_" + sid);
-  if (!triggerEl || !sentenceEl) return;
-
-  var originalSentence = sentenceEl.firstChild ? sentenceEl.firstChild.textContent.trim() : "";
-  if (!originalSentence) return;
-
-  var existing = document.getElementById("ro_" + sid);
-  if (existing) { existing.remove(); return; }
-
-  triggerEl.classList.add("loading");
-  triggerEl.innerText = "...";
-
-  try {
-    var r = await fetch("/.netlify/functions/rephrase", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentence: originalSentence, context: synState[which].currentText.slice(0, 300) })
-    });
-    var d = await r.json();
-    if (d.error) throw new Error(d.error);
-    var v = d.versions;
-
-    var panel = document.createElement("span");
-    panel.id = "ro_" + sid;
-    panel.className = "rephrase-options";
-    panel.dataset.original = originalSentence;
-    panel.dataset.stronger = v.stronger || "";
-    panel.dataset.simpler  = v.simpler  || "";
-    panel.dataset.natural  = v.natural  || "";
-
-    var opts = [
-      { key: "stronger", label: "Stronger" },
-      { key: "simpler",  label: "Simpler"  },
-      { key: "natural",  label: "Natural"  }
-    ];
-
-    var html = '<span class="rephrase-original" onclick="selectRephrase(\'' + sid + '\',\'' + which + '\',null)">' +
-      '<div class="rephrase-original-label">Original</div>' +
-      '<div class="rephrase-option-text">' + esc(originalSentence) + '</div></span>';
-
-    opts.forEach(function(opt) {
-      if (!v[opt.key]) return;
-      html += '<span class="rephrase-option" id="rpo_' + sid + '_' + opt.key + '" onclick="selectRephrase(\'' + sid + '\',\'' + which + '\',\'' + opt.key + '\')">' +
-        '<div class="rephrase-option-label">' + opt.label + '</div>' +
-        '<div class="rephrase-option-text">' + esc(v[opt.key]) + '</div></span>';
-    });
-
-    panel.innerHTML = html;
-    sentenceEl.parentElement.insertAdjacentElement("afterend", panel);
-
-  } catch(err) {
-    alert("Rephrase error: " + err.message);
-  } finally {
-    triggerEl.classList.remove("loading");
-    triggerEl.innerText = "\u9998 rephrase";
-  }
-}
-
-function selectRephrase(sid, which, optionKey) {
-  var panel = document.getElementById("ro_" + sid);
-  if (!panel) return;
-
-  panel.querySelectorAll(".rephrase-option, .rephrase-original").forEach(function(el) { el.classList.remove("selected"); });
-
-  var existingConfirm = panel.querySelector(".btn-rephrase-confirm");
-  if (existingConfirm) existingConfirm.remove();
-
-  if (!optionKey) { panel.remove(); return; }
-
-  var newText      = panel.dataset[optionKey];
-  var original     = panel.dataset.original;
-  var selectedEl   = document.getElementById("rpo_" + sid + "_" + optionKey);
-  selectedEl.classList.add("selected");
-
-  var confirmBtn = document.createElement("button");
-  confirmBtn.className = "btn-rephrase-confirm";
-  confirmBtn.innerText = "Use this?";
-  confirmBtn.onclick = function() { confirmRephrase(sid, which, original, newText); };
-  selectedEl.appendChild(confirmBtn);
-}
-
-function confirmRephrase(sid, which, oldSentence, newSentence) {
-  var state = synState[which];
-  state.currentText = state.currentText.replace(oldSentence, newSentence);
-  if (which === "resume") { optimizedText = state.currentText; }
-  else                    { coverText     = state.currentText; }
-  renderRephraseView(which);
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function setPlainView(which, text) {
-  var wrapId   = which === "resume" ? "resumeOutputWrap" : "coverOutputWrap";
-  var outputId = which === "resume" ? "output" : "coverOutput";
-  var div      = document.createElement("div");
-  div.id        = outputId;
-  div.className = "text-output";
-  div.innerText = text || "";
-  document.getElementById(wrapId).innerHTML = "";
-  document.getElementById(wrapId).appendChild(div);
-}
-
-function showFinalizeBtn(which, show) {
-  var btnId = which === "resume" ? "resumeFinalizeBtn" : "coverFinalizeBtn";
-  document.getElementById(btnId).style.display = show ? "inline-block" : "none";
-}
-
-function showRevertBtn(which, show) {
-  var btnId = which === "resume" ? "resumeRevertBtn" : "coverRevertBtn";
-  document.getElementById(btnId).style.display = show ? "inline-block" : "none";
-}
-
-function setStatus(cls, msg) {
-  var el = document.getElementById("status");
-  el.className = "status-text" + (cls ? " " + cls : "");
-  el.innerHTML = msg;
-}
-
-function esc(str) {
-  if (!str) return "";
-  return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function escRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
-}
-
-function triggerDownload(blob, filename) {
-  var url = URL.createObjectURL(blob);
-  var a   = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-// ── Fit PDF ───────────────────────────────────────────────────────────────────
-function downloadFitPdf() {
-  if (!fitData) return;
-  var jsPDF  = window.jspdf.jsPDF;
-  var doc    = new jsPDF({ unit:"pt", format:"letter" });
-  var margin = 60;
-  var maxW   = doc.internal.pageSize.getWidth() - margin * 2;
-  var y      = margin;
-
-  function addLine(text, size, bold, color, gap) {
-    doc.setFontSize(size||11);
-    doc.setFont("helvetica", bold ? "bold" : "normal");
-    doc.setTextColor.apply(doc, color || [30,30,24]);
-    doc.splitTextToSize(String(text), maxW).forEach(function(l) {
-      if (y+16 > doc.internal.pageSize.getHeight()-margin) { doc.addPage(); y=margin; }
-      doc.text(l, margin, y); y+=15;
-    });
-    y += (gap||4);
-  }
-
-  var vLabel = { strong:"Strong Fit", partial:"Partial Fit", weak:"Weak Fit" }[fitData.verdict] || "Partial Fit";
-  addLine("Fit Analysis", 18, true, null, 4);
-  addLine(vLabel + " — " + (fitData.score||0) + "% Match", 13, true, [46,92,62], 8);
-  addLine(fitData.headline||"", 11, false, null, 10);
-  addLine("WHERE ALIGNMENT EXISTS", 9, true, [122,120,112], 6);
-  (fitData.alignment||[]).forEach(function(i) { addLine(i.title,11,true,null,2); addLine(i.detail,10,false,[122,120,112],6); });
-  y+=4;
-  addLine("CRITICAL GAPS TO ADDRESS", 9, true, [122,120,112], 6);
-  (fitData.gaps||[]).forEach(function(i) { addLine(i.title,11,true,null,2); addLine(i.detail,10,false,[122,120,112],6); });
-  if (fitData.compensation) { y+=4; addLine(fitData.compensation,10,false,[122,120,112],8); }
-  y+=8;
-  addLine(fitData.summary||"", 11, false, null, 6);
-  addLine(fitData.directions||"", 10, false, [122,120,112], 0);
-  doc.save("fit-analysis.pdf");
-}
-
-// ── TXT ───────────────────────────────────────────────────────────────────────
-function downloadTxt(which) {
-  var text  = which === "cover" ? coverText : optimizedText;
-  var fname = which === "cover" ? "cover-letter.txt" : "optimized-resume.txt";
-  if (!text) return;
-  triggerDownload(new Blob([text], { type:"text/plain" }), fname);
-}
-
-// ── PDF ───────────────────────────────────────────────────────────────────────
-function downloadPdf(which) {
-  var text  = which === "cover" ? coverText : optimizedText;
-  var fname = which === "cover" ? "cover-letter.pdf" : "optimized-resume.pdf";
-  if (!text) return;
-  var jsPDF = window.jspdf.jsPDF;
-  var doc   = new jsPDF({ unit:"pt", format:"letter" });
-  var margin=60, maxW=doc.internal.pageSize.getWidth()-margin*2, lh=15, y=margin;
-  doc.setFont("helvetica","normal"); doc.setFontSize(11);
-  doc.splitTextToSize(text, maxW).forEach(function(line) {
-    if (y+lh > doc.internal.pageSize.getHeight()-margin) { doc.addPage(); y=margin; }
-    doc.text(line, margin, y); y+=lh;
-  });
-  doc.save(fname);
-}
-
-// ── WORD ──────────────────────────────────────────────────────────────────────
-async function downloadDocx(which) {
-  var text  = which === "cover" ? coverText : optimizedText;
-  var fname = which === "cover" ? "cover-letter.docx" : "optimized-resume.docx";
-  var btnId = which === "cover" ? "coverWordBtn" : "wordBtn";
-  var btn   = document.getElementById(btnId);
-  if (!text) return;
-
-  btn.innerText = "Building..."; btn.disabled = true;
-  try {
-    var D   = window.docx;
-    var paragraphs = text.split("\n").map(function(line) {
-      var t  = line.trim();
-      var ib = t.startsWith("-") || t.startsWith("*") || t.startsWith("\u2022");
-      return new D.Paragraph({ children:[new D.TextRun({ text:t, size:22, font:"Calibri" })], spacing:{ after: ib?60:160 }, indent: ib?{ left:360 }:{} });
-    });
-    var document = new D.Document({ sections:[{ children:paragraphs }] });
-    var blob = await D.Packer.toBlob(document);
-    triggerDownload(blob, fname);
-  } catch(err) { alert("Word export failed: " + err.message); }
-  finally { btn.innerHTML = "&#8595; Word"; btn.disabled = false; }
-}
-
-// Auto-extract pay
-var payExtractTimer = null;
-function schedulePayExtract() {
-  clearTimeout(payExtractTimer);
-  payExtractTimer = setTimeout(function() {
-    var jd = document.getElementById("jobDesc").value.trim();
-    if (jd.length < 100) return;
-    extractPay(jd);
-  }, 1500);
-}
-
-async function extractPay(jd) {
-  try {
-    var r = await fetch("/.netlify/functions/extract-pay", {
-      method:"POST", headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ jobDescription: jd })
-    });
-    var d = await r.json();
-    var hint = document.getElementById("payExtracted");
-    var pf   = document.getElementById("payTarget");
-    if (d.pay && !pf.value.trim()) {
-      pf.value = d.pay;
-      hint.innerText = "Pay range detected from job description";
-      hint.style.display = "block";
-    }
-  } catch(e) {}
-}
-</script>
 </body>
 </html>
