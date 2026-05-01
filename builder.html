@@ -1,6 +1,6 @@
 <!--
-  FILE:    builder-v22.html
-  VERSION: v22
+  FILE:    builder-v23.html
+  VERSION: v23
   UPDATED: 2026-04-27
   CHANGES: Added Save Draft feature backed by Google Sheets.
            Email prompt for unauthenticated users to identify drafts.
@@ -16,13 +16,14 @@
            v20: Nav 'Back to home' renamed to 'Back to Menu' for consistency.
            v21: loadDraftsByEmail auto-opens single draft; shows list only for multiple drafts.
            v22: Draft list buttons use addEventListener instead of onclick strings to fix click handler.
+           v23: showReview now hides modeScreen and all builder sub-modes before displaying review screen.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder v22 — ResumeAI</title>
+  <title>Resume Builder v23 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1893,10 +1894,20 @@ function showReview(answers) {
     markNavDot(sec);
   });
 
-  // Show review screen — hide all other screens
+  // Hide every screen and sub-mode before showing review
+  document.getElementById("modeScreen").style.display    = "none";
   document.getElementById("builderScreen").style.display = "none";
   document.getElementById("resultScreen").style.display  = "none";
-  document.getElementById("reviewScreen").style.display  = "block";
+
+  // Hide all builder sub-modes so the form/Q&A/chat don't bleed through
+  var oqEl   = document.getElementById("oqMode");
+  var formEl = document.getElementById("formMode");
+  var chatEl = document.getElementById("chatMode");
+  if (oqEl)   oqEl.style.display   = "none";
+  if (formEl) formEl.style.display = "none";
+  if (chatEl) chatEl.style.display = "none";
+
+  document.getElementById("reviewScreen").style.display = "block";
   window.scrollTo({ top: 0, behavior: "smooth" });
 
   // Set up scroll spy
