@@ -721,8 +721,8 @@
     <div class="auth-bar signed-out" id="authBar">
       <span class="auth-bar-msg" id="authMsg">Sign in to track your usage and unlock daily limits.</span>
       <div class="auth-bar-actions">
-        <button class="btn-auth" onclick="openModal('signin')">Sign In</button>
-        <button class="btn-auth" onclick="openModal('signup')" style="background:var(--accent);color:#fff;border-color:var(--accent);">Sign Up Free</button>
+        <button class="btn-auth" onclick="openModal(\'signin\')">Sign In</button>
+        <button class="btn-auth" onclick="openModal(\'signup\')" style="background:var(--accent);color:#fff;border-color:var(--accent);">Sign Up Free</button>
       </div>
     </div>
 
@@ -920,7 +920,7 @@ function openModal(mode) {
   document.getElementById("modalSubmitBtn").innerText = mode === 'signup' ? 'Create Account' : 'Sign In';
   document.getElementById("modalToggle").innerHTML  = mode === 'signup'
     ? 'Already have an account? <a onclick="toggleModal()">Sign in</a>'
-    : 'Don't have an account? <a onclick="toggleModal()">Sign up free</a>';
+    : "Don't have an account? <a onclick=\"toggleModal()\">Sign up free</a>";
   document.getElementById("modalError").innerText  = "";
   document.getElementById("authModal").classList.add("open");
 }
@@ -1025,8 +1025,8 @@ function showUpgradePrompt() {
   div.innerHTML =
     '<span>&#9889; <strong>Upgrade to Pro</strong> for unlimited daily access — $4.99/month or $29/year.</span>' +
     '<div style="display:flex;gap:6px;">' +
-      '<button onclick="startCheckout('monthly')" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#fff;background:var(--accent);border:none;border-radius:5px;padding:5px 12px;cursor:pointer;">$4.99/mo</button>' +
-      '<button onclick="startCheckout('yearly')"  style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--amber);background:var(--surface);border:1px solid var(--amber-border);border-radius:5px;padding:5px 12px;cursor:pointer;">$29/yr &#9733;</button>' +
+      '<button onclick="startCheckout(\'monthly\')" style="font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;color:#fff;background:var(--accent);border:none;border-radius:5px;padding:5px 12px;cursor:pointer;">$4.99/mo</button>' +
+      '<button onclick="startCheckout(\'yearly\')"  style="font-family:DM Sans,sans-serif;font-size:12px;font-weight:500;color:var(--amber);background:var(--surface);border:1px solid var(--amber-border);border-radius:5px;padding:5px 12px;cursor:pointer;">$29/yr &#9733;</button>' +
     '</div>';
 
   usageBar.insertAdjacentElement("afterend", div);
