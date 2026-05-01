@@ -865,8 +865,8 @@ function updateAuthBar(signedIn) {
     bar.className = "auth-bar signed-out";
     msg.innerText = "Sign in to track your daily usage. Free accounts get limited daily uses.";
     bar.querySelector(".auth-bar-actions").innerHTML =
-      '<button class="btn-auth" onclick="openModal('signin')">Sign In</button>' +
-      '<button class="btn-auth" onclick="openModal('signup')" style="background:var(--accent);color:#fff;border-color:var(--accent);">Sign Up Free</button>';
+      '<button class="btn-auth" onclick="openModal(\'signin\')">Sign In</button>' +
+      '<button class="btn-auth" onclick="openModal(\'signup\')" style="background:var(--accent);color:#fff;border-color:var(--accent);">Sign Up Free</button>';
     usageBar.style.display = "none";
   }
 }
