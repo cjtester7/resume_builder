@@ -1,6 +1,6 @@
 <!--
-  FILE:    builder-v23.html
-  VERSION: v23
+  FILE:    builder-v24.html
+  VERSION: v24
   UPDATED: 2026-04-27
   CHANGES: Added Save Draft feature backed by Google Sheets.
            Email prompt for unauthenticated users to identify drafts.
@@ -17,13 +17,14 @@
            v21: loadDraftsByEmail auto-opens single draft; shows list only for multiple drafts.
            v22: Draft list buttons use addEventListener instead of onclick strings to fix click handler.
            v23: showReview now hides modeScreen and all builder sub-modes before displaying review screen.
+           v24: Back button shows 'Back to Menu' when resuming a draft instead of 'Back to questions'.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder v23 — ResumeAI</title>
+  <title>Resume Builder v24 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2669,6 +2670,15 @@ async function resumeDraft(draftId) {
       checkStartReady();
     }
     showReview(d.draft.data);
+
+    // When loading a draft there are no questions to go back to
+    // so change the back button to go to the menu instead
+    var backBtn = document.getElementById("reviewBackBtn");
+    if (backBtn) {
+      backBtn.innerText = "← Back to Menu";
+      backBtn.onclick = function() { window.location.href = "/"; };
+    }
+
     var ei = document.getElementById("draftEmailInput");
     if (ei) ei.value = currentDraftEmail;
     startSheetsAutoSync();
