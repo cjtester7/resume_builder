@@ -1,6 +1,6 @@
 <!--
-  FILE:    builder-v24.html
-  VERSION: v24
+  FILE:    builder-v25.html
+  VERSION: v25
   UPDATED: 2026-04-27
   CHANGES: Added Save Draft feature backed by Google Sheets.
            Email prompt for unauthenticated users to identify drafts.
@@ -18,13 +18,14 @@
            v22: Draft list buttons use addEventListener instead of onclick strings to fix click handler.
            v23: showReview now hides modeScreen and all builder sub-modes before displaying review screen.
            v24: Back button shows 'Back to Menu' when resuming a draft instead of 'Back to questions'.
+           v25: Download TXT and PDF buttons added to Save Draft panel on review screen.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder v24 — ResumeAI</title>
+  <title>Resume Builder v25 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1288,11 +1289,15 @@
         <!-- Save Draft -->
         <div class="draft-email-prompt" id="saveDraftPanel">
           <h3>&#128190; Save your draft</h3>
-          <p>Enter your email to save this draft to the cloud. You can pick it up on any device.</p>
+          <p>Enter your email to save this draft to the cloud. You can also build and download your resume directly from here.</p>
           <div class="draft-email-row">
             <input class="draft-email-input" id="draftEmailInput" type="email" placeholder="your@email.com" />
             <input class="draft-email-input" id="draftLabelInput" type="text" placeholder="Draft name (optional)" style="max-width:200px;" />
             <button class="btn-save-draft" id="saveDraftBtn" onclick="saveDraftToSheets()">Save Draft</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+            <button class="btn-save-draft" id="downloadDraftBtn" onclick="buildAndDownload('txt')" style="background:var(--bg);color:var(--text);border-color:var(--border);">&#8595; Download TXT</button>
+            <button class="btn-save-draft" id="downloadDraftPdfBtn" onclick="buildAndDownload('pdf')" style="background:var(--bg);color:var(--text);border-color:var(--border);">&#8595; Download PDF</button>
           </div>
           <div class="draft-save-status" id="draftSaveStatus"></div>
         </div>
@@ -2718,6 +2723,108 @@ goBackToResult = function() {
 function escHtml(str) {
   if (!str) return "";
   return String(str).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+
+// ── Build and download from review screen ────────────────────────────────────
+async function buildAndDownload(format) {
+  var txtBtn = document.getElementById("downloadDraftBtn");
+  var pdfBtn = document.getElementById("downloadDraftPdfBtn");
+  var statusEl = document.getElementById("draftSaveStatus");
+
+  if (txtBtn) txtBtn.disabled = true;
+  if (pdfBtn) pdfBtn.disabled = true;
+  statusEl.className = "draft-save-status";
+  statusEl.innerHTML = '<span class="spinner" style="width:12px;height:12px;display:inline-block;margin-right:4px;"></span>Building resume...';
+
+  // Collect current field values
+  var answers = {
+    name:          document.getElementById("rv_name").value.trim(),
+    email:         document.getElementById("rv_email").value.trim(),
+    phone:         document.getElementById("rv_phone").value.trim(),
+    location:      document.getElementById("rv_location").value.trim(),
+    jobtarget:     document.getElementById("rv_jobtarget").value.trim(),
+    job1_employer: document.getElementById("rv_job1_employer").value.trim(),
+    job1_title:    document.getElementById("rv_job1_title").value.trim(),
+    job1_dates:    document.getElementById("rv_job1_dates").value.trim(),
+    job1_tasks:    document.getElementById("rv_job1_tasks").value.trim(),
+    job2_employer: document.getElementById("rv_job2_employer").value.trim(),
+    job2_title:    document.getElementById("rv_job2_title").value.trim(),
+    job2_dates:    document.getElementById("rv_job2_dates").value.trim(),
+    job2_tasks:    document.getElementById("rv_job2_tasks").value.trim(),
+    school:        document.getElementById("rv_school").value.trim(),
+    degree:        document.getElementById("rv_degree").value.trim(),
+    gradyear:      document.getElementById("rv_gradyear").value.trim(),
+    activities:    document.getElementById("rv_activities").value.trim(),
+    skills:        document.getElementById("rv_skills").value.trim(),
+    achievement:   document.getElementById("rv_achievement").value.trim()
+  };
+
+  try {
+    var r = await fetch("/.netlify/functions/build-resume", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile: selectedProfile, answers: answers })
+    });
+
+    var controller = new AbortController();
+    var timeoutId  = setTimeout(function() { controller.abort(); }, 30000);
+    clearTimeout(timeoutId);
+
+    if (!r.ok) throw new Error("Server returned " + r.status);
+    var d = await r.json();
+    if (!d.result) throw new Error(d.error || "No resume returned");
+
+    var text = d.result;
+    generatedResume = text;
+    sessionStorage.setItem("builderResume", text);
+
+    if (format === "pdf") {
+      downloadResumeAsPdf(text);
+    } else {
+      downloadResumeAsTextDirect(text);
+    }
+
+    statusEl.className = "draft-save-status";
+    statusEl.innerText = "✓ Downloaded!";
+
+  } catch(err) {
+    statusEl.className = "draft-save-status error";
+    statusEl.innerText = "Error: " + err.message;
+  } finally {
+    if (txtBtn) txtBtn.disabled = false;
+    if (pdfBtn) pdfBtn.disabled = false;
+  }
+}
+
+function downloadResumeAsTextDirect(text) {
+  var blob = new Blob([text], { type: "text/plain" });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement("a");
+  a.href = url; a.download = "my-resume.txt";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function downloadResumeAsPdf(text) {
+  // Use jsPDF if available, else fall back to TXT
+  if (typeof window.jspdf === "undefined") {
+    downloadResumeAsTextDirect(text);
+    return;
+  }
+  var jsPDF  = window.jspdf.jsPDF;
+  var doc    = new jsPDF({ unit: "pt", format: "letter" });
+  var margin = 60;
+  var maxW   = doc.internal.pageSize.getWidth() - margin * 2;
+  var lh     = 15;
+  var y      = margin;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(11);
+  doc.splitTextToSize(text, maxW).forEach(function(line) {
+    if (y + lh > doc.internal.pageSize.getHeight() - margin) { doc.addPage(); y = margin; }
+    doc.text(line, margin, y); y += lh;
+  });
+  doc.save("my-resume.pdf");
 }
 
 function startOver() {
