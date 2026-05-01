@@ -1,3 +1,12 @@
+# FILE:    netlify.toml
+# VERSION: v4
+# UPDATED: 2026-05-01
+# CHANGES: v1: Initial — publish, functions, optimizer redirect.
+#          v2: Added builder redirect.
+#          v3: Added esbuild bundler, Stripe webhook redirect.
+#          v4: Function timeouts set to 26s for cover-letter, optimize, fit-analysis, build-resume.
+#              Builder redirect updated to builder.html.
+
 [build]
   publish = "."
   functions = "netlify/functions"
@@ -5,16 +14,29 @@
 [functions]
   node_bundler = "esbuild"
 
+# Increase timeout for all functions to 26 seconds (Netlify free plan max)
+[functions."cover-letter"]
+  timeout = 26
+
+[functions."optimize"]
+  timeout = 26
+
+[functions."fit-analysis"]
+  timeout = 26
+
+[functions."build-resume"]
+  timeout = 26
+
 # Optimizer
 [[redirects]]
   from = "/optimizer"
-  to = "/index-v10.html"
+  to = "/index-v14.html"
   status = 200
 
 # Builder
 [[redirects]]
   from = "/builder"
-  to = "/builder-v16.html"
+  to = "/builder.html"
   status = 200
 
 # Stripe webhook — must NOT be cached or redirected

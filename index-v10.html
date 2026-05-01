@@ -1,9 +1,18 @@
+<!--
+  FILE:    index-v14.html
+  VERSION: v14
+  UPDATED: 2026-05-01
+  CHANGES: v11: Added Supabase auth, usage counters, sign in/sign up modal, Stripe upgrade UI.
+           v12: Usage helper inlined into all AI functions, guest passthrough fix.
+           v13: Syntax fixes — unescaped quotes in openModal, startCheckout, font-family strings.
+           v14: Cover letter 25s AbortController timeout. netlify.toml function timeouts added.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Resume Optimizer</title>
+  <title>AI Resume Optimizer v14</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1231,13 +1240,19 @@ async function generateCoverLetter() {
   exitSynonymMode("cover");
   showRevertBtn("cover", false);
 
+  var coverController = new AbortController();
+  var coverTimeout = setTimeout(function() { coverController.abort(); }, 25000);
+
   try {
     var r = await fetch("/.netlify/functions/cover-letter", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ resume: resume, jobDescription: jobDesc })
+      body: JSON.stringify({ resume: resume, jobDescription: jobDesc, userId: getUserId() }),
+      signal: coverController.signal
     });
+    clearTimeout(coverTimeout);
     if (!r.ok) throw new Error("Server returned " + r.status);
     var d = await r.json();
+    if (d.limitReached) { setStatus("error", d.error); return; }
     if (d.result) {
       coverText = d.result;
       synState.cover.currentText = coverText;
@@ -1248,7 +1263,14 @@ async function generateCoverLetter() {
       setStatus("success", "Cover letter ready.");
       loadUsageCounts();
     } else { throw new Error(d.error || "No result returned"); }
-  } catch(err) { setStatus("error", "Error: " + err.message); }
+  } catch(err) {
+    clearTimeout(coverTimeout);
+    if (err.name === "AbortError") {
+      setStatus("error", "Cover letter is taking too long — please try again.");
+    } else {
+      setStatus("error", "Error: " + err.message);
+    }
+  }
   finally { btn.disabled = false; }
 }
 
