@@ -1,11 +1,12 @@
 # FILE:    netlify.toml
-# VERSION: v4
+# VERSION: v5
 # UPDATED: 2026-05-01
 # CHANGES: v1: Initial — publish, functions, optimizer redirect.
 #          v2: Added builder redirect.
 #          v3: Added esbuild bundler, Stripe webhook redirect.
 #          v4: Function timeouts set to 26s for cover-letter, optimize, fit-analysis, build-resume.
 #              Builder redirect updated to builder.html.
+#          v5: Redirect updated to index-v15.html.
 
 [build]
   publish = "."
@@ -30,7 +31,7 @@
 # Optimizer
 [[redirects]]
   from = "/optimizer"
-  to = "/index-v14.html"
+  to = "/index-v15.html"
   status = 200
 
 # Builder
