@@ -1,6 +1,6 @@
 <!--
-  FILE:    builder-v20.html
-  VERSION: v20
+  FILE:    builder-v22.html
+  VERSION: v22
   UPDATED: 2026-04-27
   CHANGES: Added Save Draft feature backed by Google Sheets.
            Email prompt for unauthenticated users to identify drafts.
@@ -14,13 +14,15 @@
            v18: Download button fix — generatedResume persisted in sessionStorage across renders.
            v19: Added '+ Add another job' button to review screen Work History section.
            v20: Nav 'Back to home' renamed to 'Back to Menu' for consistency.
+           v21: loadDraftsByEmail auto-opens single draft; shows list only for multiple drafts.
+           v22: Draft list buttons use addEventListener instead of onclick strings to fix click handler.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder v20 — ResumeAI</title>
+  <title>Resume Builder v22 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2532,11 +2534,44 @@ async function loadDraftsByEmail() {
   var emailEl = document.getElementById("draftEmailMode");
   var email   = emailEl ? emailEl.value.trim() : "";
   if (!email || !email.includes("@")) { alert("Please enter a valid email."); return; }
+
   currentDraftEmail = email;
   localStorage.setItem("resumeai_draft_email", email);
   hideDraftEmailMode();
-  showMyDraftsPanel();
-  await refreshDraftList();
+
+  // Show loading state
+  var promptEl = document.getElementById("draftEmailPromptMode");
+  if (promptEl) { promptEl.innerHTML = '<span style="font-size:12px;color:var(--muted);"><span class="spinner" style="width:12px;height:12px;display:inline-block;margin-right:4px;"></span>Loading drafts...</span>'; }
+
+  try {
+    var r = await fetch("/.netlify/functions/draft-sheets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "list", userEmail: email })
+    });
+    var d = await r.json();
+    var drafts = (d.drafts || []).filter(function(dr) { return dr.draftId; });
+
+    if (drafts.length === 0) {
+      // No drafts found
+      if (promptEl) { promptEl.innerHTML = '<span style="font-size:12px;color:var(--muted);">No saved drafts found for <strong>' + escHtml(email) + '</strong>. <a onclick="showDraftEmailPromptMode()" style="color:var(--accent);cursor:pointer;text-decoration:underline;">Try another email</a></span>'; }
+      return;
+    }
+
+    if (drafts.length === 1) {
+      // Only one draft — open it automatically
+      if (promptEl) { promptEl.innerHTML = '<span style="font-size:12px;color:var(--accent);">&#10003; Draft found. Opening...</span>'; }
+      await resumeDraft(drafts[0].draftId);
+      return;
+    }
+
+    // Multiple drafts — show the panel so user can choose
+    showMyDraftsPanel();
+    await refreshDraftList();
+
+  } catch(err) {
+    if (promptEl) { promptEl.innerHTML = '<span style="font-size:12px;color:var(--danger);">Error: ' + escHtml(err.message) + '</span>'; }
+  }
 }
 
 function showMyDraftsPanel() {
@@ -2565,17 +2600,40 @@ async function refreshDraftList() {
       var dateStr = draft.updatedAt ? new Date(draft.updatedAt).toLocaleDateString() : "";
       var profileLabel = {highschool:"High School",college:"College",trades:"Service/Trades",
         office:"Office",esl:"ESL/Foreign-born",career:"Career Changer"}[draft.profile] || "";
+
+      // Build item element
       var item = document.createElement("div");
       item.className = "draft-item";
-      item.innerHTML =
-        '<div class="draft-item-info">' +
-          '<div class="draft-item-label">' + escHtml(draft.label) + '</div>' +
-          '<div class="draft-item-meta">' + (profileLabel ? profileLabel + " &middot; " : "") + dateStr + '</div>' +
-        '</div>' +
-        '<div class="draft-item-actions">' +
-          '<button class="btn-draft-load" onclick="resumeDraft(\'' + draft.draftId + '\')">Resume</button>' +
-          '<button class="btn-draft-delete" onclick="deleteDraft(\'' + draft.draftId + '\', this)">Delete</button>' +
-        '</div>';
+
+      var info = document.createElement("div");
+      info.className = "draft-item-info";
+      info.innerHTML =
+        '<div class="draft-item-label">' + escHtml(draft.label) + '</div>' +
+        '<div class="draft-item-meta">' + (profileLabel ? profileLabel + " &middot; " : "") + dateStr + '</div>';
+
+      var actions = document.createElement("div");
+      actions.className = "draft-item-actions";
+
+      // Resume button — addEventListener avoids all quote-escaping issues
+      var resumeBtn = document.createElement("button");
+      resumeBtn.className = "btn-draft-load";
+      resumeBtn.innerText = "Resume";
+      (function(id) {
+        resumeBtn.addEventListener("click", function() { resumeDraft(id); });
+      })(draft.draftId);
+
+      // Delete button
+      var deleteBtn = document.createElement("button");
+      deleteBtn.className = "btn-draft-delete";
+      deleteBtn.innerText = "Delete";
+      (function(id, btn) {
+        deleteBtn.addEventListener("click", function() { deleteDraft(id, btn); });
+      })(draft.draftId, deleteBtn);
+
+      actions.appendChild(resumeBtn);
+      actions.appendChild(deleteBtn);
+      item.appendChild(info);
+      item.appendChild(actions);
       listEl.appendChild(item);
     });
   } catch(err) {
