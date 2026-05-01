@@ -1,6 +1,6 @@
 <!--
-  FILE:    builder-v19.html
-  VERSION: v19
+  FILE:    builder-v20.html
+  VERSION: v20
   UPDATED: 2026-04-27
   CHANGES: Added Save Draft feature backed by Google Sheets.
            Email prompt for unauthenticated users to identify drafts.
@@ -13,13 +13,14 @@
            Result screen: stricter dash filter and header whitelist to prevent names being parsed as headers.
            v18: Download button fix — generatedResume persisted in sessionStorage across renders.
            v19: Added '+ Add another job' button to review screen Work History section.
+           v20: Nav 'Back to home' renamed to 'Back to Menu' for consistency.
 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Resume Builder v19 — ResumeAI</title>
+  <title>Resume Builder v20 — ResumeAI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -985,7 +986,7 @@
 
 <nav>
   <a class="nav-logo" href="/">Resume<span>AI</span></a>
-  <a class="nav-back" href="/">&larr; Back to home</a>
+  <a class="nav-back" href="/">&#8592; Back to Menu</a>
 </nav>
 
 <div class="container">

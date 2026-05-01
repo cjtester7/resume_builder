@@ -138,6 +138,127 @@
       display: none;
     }
 
+    /* Usage counters */
+    .usage-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .usage-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--muted);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 10px;
+    }
+
+    .usage-pill.low { color: var(--danger); border-color: var(--danger-border); background: var(--danger-light); }
+    .usage-pill.empty { color: var(--danger); border-color: var(--danger-border); background: var(--danger-light); font-weight: 500; }
+
+    .usage-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-border);
+    }
+
+    .usage-pill.low .usage-dot, .usage-pill.empty .usage-dot { background: var(--danger); }
+
+    .auth-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--accent-light);
+      border: 1px solid var(--accent-border);
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .auth-bar.signed-out { background: var(--amber-light); border-color: var(--amber-border); }
+
+    .auth-bar-msg { color: var(--text); }
+    .auth-bar-actions { display: flex; gap: 8px; }
+
+    .btn-auth {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--surface);
+      border: 1px solid var(--accent-border);
+      border-radius: 5px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-auth:hover { background: #d6ebda; }
+
+    /* Auth modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px;
+    }
+
+    .modal h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 22px;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+
+    .modal p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.55; }
+
+    .modal-input {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color 0.15s;
+    }
+
+    .modal-input:focus { border-color: var(--accent); }
+
+    .modal-actions { display: flex; gap: 8px; margin-top: 4px; }
+    .modal-error { font-size: 12px; color: var(--danger); margin-top: 6px; min-height: 18px; }
+    .modal-toggle { font-size: 12px; color: var(--muted); margin-top: 12px; text-align: center; cursor: pointer; }
+    .modal-toggle a { color: var(--accent); text-decoration: underline; cursor: pointer; }
+
+
     .actions {
       display: flex;
       align-items: center;
@@ -520,10 +641,47 @@
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Top nav */
+    .top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+      margin-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .top-nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .top-nav-logo span { color: var(--accent); font-style: italic; }
+
+    .top-nav-back {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+    }
+
+    .top-nav-back:hover { color: var(--accent); }
   </style>
 </head>
 <body>
 <div class="container">
+
+  <nav class="top-nav">
+    <a class="top-nav-logo" href="/">Resume<span>AI</span></a>
+    <a class="top-nav-back" href="/">&#8592; Back to Menu</a>
+  </nav>
 
   <header>
     <h1>Resume Optimizer</h1>
@@ -559,6 +717,22 @@
       <span class="status-text" id="status"></span>
     </div>
     <p style="font-size:12px;color:var(--muted);margin-top:10px;">Not sure if this role is right for you? Try <strong style="color:var(--text);">Am I a Good Fit?</strong> first — then optimize if it looks promising.</p>
+
+    <div class="auth-bar signed-out" id="authBar">
+      <span class="auth-bar-msg" id="authMsg">Sign in to track your usage and unlock daily limits.</span>
+      <div class="auth-bar-actions">
+        <button class="btn-auth" onclick="openModal('signin')">Sign In</button>
+        <button class="btn-auth" onclick="openModal('signup')" style="background:var(--accent);color:#fff;border-color:var(--accent);">Sign Up Free</button>
+      </div>
+    </div>
+
+    <div class="usage-bar" id="usageBar" style="display:none;">
+      <span class="usage-pill" id="up-fit"><span class="usage-dot"></span> Fit Analysis: <strong id="uc-fit">-</strong> left</span>
+      <span class="usage-pill" id="up-optimize"><span class="usage-dot"></span> Optimize: <strong id="uc-optimize">-</strong> left</span>
+      <span class="usage-pill" id="up-cover"><span class="usage-dot"></span> Cover Letter: <strong id="uc-cover">-</strong> left</span>
+      <span class="usage-pill" id="up-synonym"><span class="usage-dot"></span> Synonym Swap: <strong id="uc-synonym">-</strong> left</span>
+      <span class="usage-pill" id="up-rephrase"><span class="usage-dot"></span> Rephrase: <strong id="uc-rephrase">-</strong> left</span>
+    </div>
   </div>
 
   <!-- Optimized resume output -->
@@ -616,8 +790,25 @@
     </div>
   </div>
 
+  <!-- Auth modal -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal">
+      <h3 id="modalTitle">Sign In</h3>
+      <p id="modalDesc">Sign in to track your daily usage across all features.</p>
+      <input class="modal-input" id="modalEmail" type="email" placeholder="Email address" />
+      <input class="modal-input" id="modalPassword" type="password" placeholder="Password" />
+      <div class="modal-error" id="modalError"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" id="modalSubmitBtn" onclick="submitAuth()">Sign In</button>
+        <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+      <div class="modal-toggle" id="modalToggle">Don't have an account? <a onclick="toggleModal()">Sign up free</a></div>
+    </div>
+  </div>
+
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
 
@@ -626,6 +817,260 @@ var optimizedText = "";
 var coverText     = "";
 var fitData       = null;
 var payExtractTimer = null;
+
+// ── Supabase auth + usage ─────────────────────────────────────────────────────
+const _supabase = window.supabase.createClient(
+  'YOUR_SUPABASE_URL',
+  'YOUR_SUPABASE_ANON_KEY'
+);
+
+var currentUser = null;
+var modalMode   = 'signin';
+
+// Init — check session on load
+(async function initAuth() {
+  const { data: { session } } = await _supabase.auth.getSession();
+  if (session && session.user) {
+    currentUser = session.user;
+    updateAuthBar(true);
+    loadUsageCounts();
+  }
+
+  _supabase.auth.onAuthStateChange(function(event, session) {
+    if (session && session.user) {
+      currentUser = session.user;
+      updateAuthBar(true);
+      loadUsageCounts();
+      loadPlan();
+    } else {
+      currentUser = null;
+      currentPlan = 'free';
+      updateAuthBar(false);
+    }
+  });
+})();
+
+function updateAuthBar(signedIn) {
+  var bar = document.getElementById("authBar");
+  var msg = document.getElementById("authMsg");
+  var usageBar = document.getElementById("usageBar");
+
+  if (signedIn) {
+    bar.className = "auth-bar";
+    msg.innerText = "Signed in as " + (currentUser.email || "");
+    bar.querySelector(".auth-bar-actions").innerHTML =
+      '<button class="btn-auth" onclick="signOut()">Sign Out</button>';
+    usageBar.style.display = "flex";
+  } else {
+    bar.className = "auth-bar signed-out";
+    msg.innerText = "Sign in to track your daily usage. Free accounts get limited daily uses.";
+    bar.querySelector(".auth-bar-actions").innerHTML =
+      '<button class="btn-auth" onclick="openModal('signin')">Sign In</button>' +
+      '<button class="btn-auth" onclick="openModal('signup')" style="background:var(--accent);color:#fff;border-color:var(--accent);">Sign Up Free</button>';
+    usageBar.style.display = "none";
+  }
+}
+
+async function loadUsageCounts() {
+  if (!currentUser) return;
+  try {
+    var r = await fetch("/.netlify/functions/get-usage", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: currentUser.id })
+    });
+    var d = await r.json();
+    if (d.usage) { updateUsagePills(d.usage); }
+  } catch(e) {}
+}
+
+function updateUsagePills(usage) {
+  // If pro, show unlimited badge instead of counts
+  if (currentPlan === 'pro') {
+    document.querySelectorAll('.usage-pill').forEach(function(p) {
+      p.className = 'usage-pill';
+      p.querySelector('strong') && (p.querySelector('strong').innerText = '∞');
+    });
+    return;
+  }
+  var map = {
+    fit_analysis: { pill: "up-fit",      count: "uc-fit"      },
+    optimize:     { pill: "up-optimize", count: "uc-optimize" },
+    cover_letter: { pill: "up-cover",    count: "uc-cover"    },
+    synonym_swap: { pill: "up-synonym",  count: "uc-synonym"  },
+    rephrase:     { pill: "up-rephrase", count: "uc-rephrase" }
+  };
+
+  Object.keys(map).forEach(function(feature) {
+    var info = map[feature];
+    var data = usage[feature];
+    if (!data) return;
+    var pill  = document.getElementById(info.pill);
+    var count = document.getElementById(info.count);
+    if (!pill || !count) return;
+    count.innerText = data.remaining;
+    pill.className = "usage-pill" + (data.remaining === 0 ? " empty" : data.remaining <= 1 ? " low" : "");
+  });
+}
+
+// Modal
+function openModal(mode) {
+  modalMode = mode || 'signin';
+  document.getElementById("modalTitle").innerText   = mode === 'signup' ? 'Create Account' : 'Sign In';
+  document.getElementById("modalDesc").innerText    = mode === 'signup' ? 'Free accounts get daily uses of every feature.' : 'Sign in to track your daily usage.';
+  document.getElementById("modalSubmitBtn").innerText = mode === 'signup' ? 'Create Account' : 'Sign In';
+  document.getElementById("modalToggle").innerHTML  = mode === 'signup'
+    ? 'Already have an account? <a onclick="toggleModal()">Sign in</a>'
+    : 'Don't have an account? <a onclick="toggleModal()">Sign up free</a>';
+  document.getElementById("modalError").innerText  = "";
+  document.getElementById("authModal").classList.add("open");
+}
+
+function closeModal() { document.getElementById("authModal").classList.remove("open"); }
+
+function toggleModal() { openModal(modalMode === 'signin' ? 'signup' : 'signin'); }
+
+async function submitAuth() {
+  var email    = document.getElementById("modalEmail").value.trim();
+  var password = document.getElementById("modalPassword").value;
+  var errEl    = document.getElementById("modalError");
+  var btn      = document.getElementById("modalSubmitBtn");
+
+  if (!email || !password) { errEl.innerText = "Please fill in all fields."; return; }
+
+  btn.disabled = true;
+  errEl.innerText = "";
+
+  try {
+    var result;
+    if (modalMode === 'signup') {
+      result = await _supabase.auth.signUp({ email, password });
+    } else {
+      result = await _supabase.auth.signInWithPassword({ email, password });
+    }
+
+    if (result.error) { errEl.innerText = result.error.message; return; }
+
+    if (modalMode === 'signup' && !result.data.session) {
+      errEl.style.color = "var(--success)";
+      errEl.innerText = "Check your email to confirm your account.";
+      return;
+    }
+
+    closeModal();
+  } catch(e) {
+    errEl.innerText = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function signOut() {
+  await _supabase.auth.signOut();
+}
+
+// Helper to get userId for fetch calls
+function getUserId() { return currentUser ? currentUser.id : null; }
+
+// ── Stripe upgrade ────────────────────────────────────────────────────────────
+const STRIPE_PUBLISHABLE_KEY     = 'YOUR_STRIPE_PUBLISHABLE_KEY';
+const STRIPE_MONTHLY_PRICE_ID    = 'YOUR_STRIPE_MONTHLY_PRICE_ID';
+const STRIPE_YEARLY_PRICE_ID     = 'YOUR_STRIPE_YEARLY_PRICE_ID';
+
+var currentPlan = 'free';
+
+async function loadPlan() {
+  if (!currentUser) return;
+  try {
+    var r = await fetch("/.netlify/functions/get-plan", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: currentUser.id })
+    });
+    var d = await r.json();
+    currentPlan = d.plan || "free";
+    updatePlanBadge();
+  } catch(e) {}
+}
+
+function updatePlanBadge() {
+  var bar = document.getElementById("authBar");
+  if (!bar) return;
+  var existing = document.getElementById("planBadge");
+  if (existing) existing.remove();
+
+  if (currentPlan === "pro") {
+    var badge = document.createElement("span");
+    badge.id = "planBadge";
+    badge.style.cssText = "font-size:11px;font-weight:500;background:var(--accent);color:#fff;border-radius:20px;padding:2px 10px;margin-left:8px;";
+    badge.innerText = "PRO";
+    document.getElementById("authMsg").appendChild(badge);
+
+    // Hide upgrade prompt if showing
+    var upEl = document.getElementById("upgradePrompt");
+    if (upEl) upEl.style.display = "none";
+  } else {
+    showUpgradePrompt();
+  }
+}
+
+function showUpgradePrompt() {
+  var existing = document.getElementById("upgradePrompt");
+  if (existing) return;
+
+  var usageBar = document.getElementById("usageBar");
+  if (!usageBar) return;
+
+  var div = document.createElement("div");
+  div.id = "upgradePrompt";
+  div.style.cssText = "font-size:12px;color:var(--amber);background:var(--amber-light);border:1px solid var(--amber-border);border-radius:6px;padding:10px 14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;";
+  div.innerHTML =
+    '<span>&#9889; <strong>Upgrade to Pro</strong> for unlimited daily access — $4.99/month or $29/year.</span>' +
+    '<div style="display:flex;gap:6px;">' +
+      '<button onclick="startCheckout('monthly')" style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:#fff;background:var(--accent);border:none;border-radius:5px;padding:5px 12px;cursor:pointer;">$4.99/mo</button>' +
+      '<button onclick="startCheckout('yearly')"  style="font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--amber);background:var(--surface);border:1px solid var(--amber-border);border-radius:5px;padding:5px 12px;cursor:pointer;">$29/yr &#9733;</button>' +
+    '</div>';
+
+  usageBar.insertAdjacentElement("afterend", div);
+}
+
+async function startCheckout(period) {
+  if (!currentUser) { openModal('signup'); return; }
+
+  var priceId = period === 'yearly' ? STRIPE_YEARLY_PRICE_ID : STRIPE_MONTHLY_PRICE_ID;
+
+  try {
+    var r = await fetch("/.netlify/functions/create-checkout", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId:     currentUser.id,
+        priceId:    priceId,
+        successUrl: window.location.origin + "/optimizer?upgraded=true",
+        cancelUrl:  window.location.origin + "/optimizer"
+      })
+    });
+    var d = await r.json();
+    if (d.url) { window.location.href = d.url; }
+    else { alert("Could not start checkout: " + (d.error || "Unknown error")); }
+  } catch(e) {
+    alert("Checkout error: " + e.message);
+  }
+}
+
+// Show upgrade success banner if returning from Stripe
+(function checkUpgradeReturn() {
+  var params = new URLSearchParams(window.location.search);
+  if (params.get("upgraded") === "true") {
+    var banner = document.createElement("div");
+    banner.style.cssText = "font-size:14px;color:var(--success);background:var(--accent-light);border:1px solid var(--accent-border);border-radius:6px;padding:12px 16px;margin-bottom:16px;";
+    banner.innerHTML = "&#10003; <strong>You're now on Pro!</strong> Unlimited daily access to all features is now active.";
+    document.querySelector(".card").insertBefore(banner, document.querySelector(".fields"));
+    // Clean up URL
+    window.history.replaceState({}, "", window.location.pathname);
+  }
+})();
+
+
+
+
 
 // Per-output synonym state
 var synState = {
@@ -742,6 +1187,7 @@ async function runFitAnalysis() {
       document.getElementById("fitSection").style.display = "block";
       document.getElementById("fitSection").scrollIntoView({ behavior:"smooth", block:"start" });
       setStatus("success", "Analysis complete.");
+      loadUsageCounts();
     } else { throw new Error(d.error || "No analysis returned"); }
   } catch(err) { setStatus("error", "Error: " + err.message); }
   finally { btn.disabled = false; }
@@ -800,6 +1246,7 @@ async function generateCoverLetter() {
       document.getElementById("coverSection").style.display = "block";
       document.getElementById("coverSection").scrollIntoView({ behavior:"smooth", block:"start" });
       setStatus("success", "Cover letter ready.");
+      loadUsageCounts();
     } else { throw new Error(d.error || "No result returned"); }
   } catch(err) { setStatus("error", "Error: " + err.message); }
   finally { btn.disabled = false; }
@@ -825,10 +1272,11 @@ async function toggleSynonymView(which) {
   try {
     var r = await fetch("/.netlify/functions/synonym-swap", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text: state.currentText })
+      body: JSON.stringify({ text: state.currentText, userId: getUserId() })
     });
     if (!r.ok) throw new Error("Server returned " + r.status);
     var d = await r.json();
+    if (d.limitReached) { alert(d.error); btn.innerText = "\u2731 Synonym Swap"; return; }
     if (d.sentences) {
       state.data   = d.sentences;
       state.active = true;
@@ -1089,9 +1537,10 @@ async function triggerRephrase(sid, which) {
   try {
     var r = await fetch("/.netlify/functions/rephrase", {
       method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sentence: originalSentence, context: synState[which].currentText.slice(0, 300) })
+      body: JSON.stringify({ sentence: originalSentence, context: synState[which].currentText.slice(0, 300), userId: getUserId() })
     });
     var d = await r.json();
+    if (d.limitReached) { alert(d.error); return; }
     if (d.error) throw new Error(d.error);
     var v = d.versions;
 
