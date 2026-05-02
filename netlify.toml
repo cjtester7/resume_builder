@@ -1,5 +1,5 @@
 # FILE:    netlify.toml
-# VERSION: v6
+# VERSION: v7
 # UPDATED: 2026-05-01
 # CHANGES: v1: Initial — publish, functions, optimizer redirect.
 #          v2: Added builder redirect.
@@ -8,6 +8,7 @@
 #              Builder redirect updated to builder.html.
 #          v5: Redirect updated to index-v15.html.
 #          v6: Redirect updated to index-v16.html.
+#          v7: Redirect updated to index-v17.html.
 
 [build]
   publish = "."
@@ -32,7 +33,7 @@
 # Optimizer
 [[redirects]]
   from = "/optimizer"
-  to = "/index-v16.html"
+  to = "/index-v17.html"
   status = 200
 
 # Builder
